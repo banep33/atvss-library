@@ -158,22 +158,8 @@ Route::middleware(['bibliotekar'])->group(function () {
 // ============================================
 
 Route::middleware(['admin'])->group(function () {
-    Route::get('/admin/debug-brojevi', [AdminController::class, 'debugBrojevi']);
-    Route::get('/admin/debug-intl', function () {          
-        return response()->json([
-            'intl_enabled'    => extension_loaded('intl'),
-            'transliterator'  => class_exists('Transliterator'),
-        ]);
-    });
-
     Route::match(['DELETE', 'POST'], '/admin/delete-all-knjige', [AdminController::class, 'deleteAllKnjige']);
 });
-
-
-// backend/routes/api.php — DODATI na kraj postojećeg fajla
-// (Ne zamenjuje ceo fajl, samo dodaje AI rute)
-
-
 
 /*
 |--------------------------------------------------------------------------

@@ -1526,7 +1526,7 @@ class AiChatService
 
         $knjige = $this->data->hidriraj($spojeno);
 
-        // 6) Preporuke (bib-pravila 6.1, bib-izmene 5 i 6): korisnik traži nešto
+        // 6) Preporuke (bib-pravila 6.1): korisnik traži nešto
         //    iz kataloga, a pogodaka nema. Preporuke se NE nude kada na pitanje
         //    odgovara drugi deo konteksta: pravila biblioteke (FAQ), agregati,
         //    liste najnovijih/najčitanijih ili broj knjiga sa rečju.

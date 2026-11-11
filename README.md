@@ -1,269 +1,134 @@
-# 📚 ATVSSLibrary - Sistem za Upravljanje Bibliotekom
+# ATVSS biblioteka
 
-Aplikacija za upravljanje bibliotekom Akademije tehničko-vaspitačkih strukovnih studija.
+Veb aplikacija za vođenje biblioteke Akademije tehničko-vaspitačkih strukovnih
+studija (ATVSS) — katalog, primerci, rezervacije, zaduženja i obaveštenja,
+uz AI asistenta **Bib** koji odgovara na pitanja o fondu i pravilima biblioteke
+na srpskom jeziku (latinica i ćirilica).
 
-## 🚀 Brzi Start (Windows)
+## Funkcionalnosti
 
-### 📥 Prvi put - Setup projekta
+**Za članove**
+- pretraga kataloga po naslovu, autoru, žanru, godini i mestu izdanja
+- rezervacija knjiga, lista čekanja i pregled sopstvenih zaduženja
+- obaveštenja u aplikaciji i e-poštom (odobrena rezervacija, podsetnik za rok vraćanja)
+- predlaganje novih naslova za nabavku
+- prikaz celog sajta na latinici ili ćirilici (preslovljavanje na serveru)
 
-1. **Kloniraj repozitorijum:**
-   ```bash
-   git clone https://github.com/MilanRichie/ATVSSLibrary.git
-   cd ATVSSLibrary
-   ```
+**Za bibliotekare i administratore**
+- upravljanje knjigama, primercima, žanrovima i članovima
+- odobravanje rezervacija, zaduživanje i razduživanje primeraka
+- inventarna knjiga i masovni uvoz fonda iz Excel tabele
+- arhiva zaduženja i statistika najčitanijih naslova
+- zakazani poslovi: istek rezervacija, podsetnici rokova, osvežavanje najčitanijih
 
-2. **Pokreni setup skriptu:**
-   ```bash
-   setup.bat
-   ```
-   
-   Skripta automatski:
-   - ✅ Instalira PHP zavisnosti (composer install)
-   - ✅ Instalira Node.js zavisnosti (npm install)
-   - ✅ Kreira .env fajl
-   - ✅ Generiše aplikacioni ključ
-   - ✅ Kreira bazu i pokreće migracije
-   - ✅ Seeduje test podatke
-   - ✅ Builduje frontend
+**AI asistent „Bib"**
+- hibridno rutiranje: deterministički odgovori iz baze gde god je moguće
+  (dostupnost, statistika, autori, žanrovi, FAQ), a jezički model samo tamo
+  gde je potreban
+- RAG pretraga kataloga preko zasebnog Python mikroservisa
+  (vektorska KNN pretraga + FTS5/BM25, spojeno Reciprocal Rank Fusion-om)
+- normalizacija srpskog jezika: ćirilica → latinica, dijakritici, padeži,
+  provera pravopisa (Hunspell)
+- lokalni modeli preko Ollame — podaci ne napuštaju server
+- evaluacioni skup (golden / held-out pitanja) za merenje tačnosti odgovora
 
-3. **Pokreni server:**
-   ```bash
-   start-dev.bat
-   ```
+## Arhitektura
 
-4. **Otvori aplikaciju:**
-   - URL: http://localhost:8000
-
----
-
-### 🔄 Ažuriranje projekta (nakon git pull)
-
-```bash
-git pull origin main
-update.bat
-start-dev.bat
+```
+ Pregledač ──► Laravel (Blade + vanilla JS)
+                 │
+                 ├── SQLite baza (katalog, članovi, rezervacije, zaduženja)
+                 │
+                 └── AI asistent
+                       ├── rutiranje namere ──► fiksni odgovori iz baze
+                       ├── RAG mikroservis (Python / FastAPI)
+                       │     normalizacija → embedding → sqlite-vec KNN + FTS5 → RRF
+                       └── Ollama (lokalni LLM i embedding model)
 ```
 
-**update.bat automatski:**
-- ✅ Ažurira composer zavisnosti
-- ✅ Ažurira npm zavisnosti
-- ✅ Pokreće nove migracije (uključujući data migrations!)
-- ✅ Builduje frontend
-- ✅ Čisti cache
+## Tehnologije
 
----
+| Sloj | Tehnologije |
+|------|-------------|
+| Backend | PHP 8.2, Laravel 12, SQLite, PhpSpreadsheet |
+| Frontend | Blade, vanilla JavaScript, CSS, Vite |
+| AI / RAG | Python, FastAPI, sqlite-vec, SQLite FTS5, langdetect, Hunspell (spylls), Ollama (`llama3.2:3b`, `nomic-embed-text`) |
+| Testovi | PHPUnit (feature i unit testovi, ~400 testova) |
+| Isporuka | Docker, Docker Compose, CI pipeline |
 
-## 🐧 Brzi Start (Linux/Mac)
+## Struktura projekta
 
-### 📥 Prvi put - Setup projekta
-
-1. **Kloniraj repozitorijum:**
-   ```bash
-   git clone https://github.com/MilanRichie/ATVSSLibrary.git
-   cd ATVSSLibrary
-   ```
-
-2. **Učini skripte izvršnim:**
-   ```bash
-   chmod +x setup.sh update.sh start-dev.sh
-   ```
-
-3. **Pokreni setup skriptu:**
-   ```bash
-   ./setup.sh
-   ```
-
-4. **Pokreni server:**
-   ```bash
-   ./start-dev.sh
-   ```
-
-5. **Otvori aplikaciju:**
-   - URL: http://localhost:8000
-   - Za gasenje: Ctrl+C
-
-### 🔄 Ažuriranje projekta (nakon git pull)
-
-```bash
-git pull origin main
-./update.sh
-./start-dev.sh
+```
+backend/
+├── app/
+│   ├── Http/Controllers/    # kontroleri (katalog, rezervacije, zaduženja, AI chat…)
+│   ├── Models/              # Eloquent modeli
+│   ├── Services/            # poslovna logika (rezervacije, zaduženja, uvoz, obaveštenja)
+│   │   └── Ai/              # AI asistent: rutiranje, pretraga kataloga, RAG klijent
+│   └── Console/Commands/    # zakazani poslovi i alati (reindeksiranje, merenje)
+├── database/                # migracije i seederi
+├── resources/
+│   ├── views/               # Blade šabloni
+│   └── normalization/       # pravila normalizacije jezika (zajednička za PHP i Python)
+├── rag_service/             # Python RAG mikroservis
+└── tests/                   # PHPUnit testovi
+docker-compose.yml           # app + scheduler + rag servis
 ```
 
----
+## Pokretanje lokalno
 
-### ⚙️ Dostupne Skripte
+Preduslovi: PHP 8.2+ (sa `intl` i `pdo_sqlite`), Composer, Node.js, a za AI
+asistenta još Python 3.12 i [Ollama](https://ollama.com).
 
-| Windows | Linux/Mac | Kada koristiti | Šta radi |
-|---------|-----------|---------------|----------|
-| `setup.bat` | `./setup.sh` | **Prvi put** nakon clone | Kompletan setup od nule |
-| `update.bat` | `./update.sh` | **Nakon git pull** | Ažurira zavisnosti i migracije |
-| `start-dev.bat` | `./start-dev.sh` | **Pokretanje servera** | Startuje backend na port 8000 |
-| `stop-dev.bat` | Ctrl+C | **Gašenje servera** | Zaustavlja server |
+```bash
+git clone https://github.com/banep33/atvss-library.git
+cd atvss-library/backend
 
----
+composer install
+npm install && npm run build
 
-## 👥 Default Korisnici
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
 
-Nakon `setup.bat`, imamo:
+php artisan serve
+```
 
-| Email | Password | Uloga |
-|-------|----------|-------|
-| admin@biblioteka.rs | admin123 | Administrator |
-| jovana@example.com | clan123 | Član |
-| stefan@example.com | clan123 | Član |
+Na Windows-u isto rade skripte `setup.bat` i `start-dev.bat` iz korena projekta.
 
----
+Aplikacija je dostupna na http://localhost:8000. Test nalozi se kreiraju
+seederom (`database/seeders/UserSeeder.php`), npr. član `jovana@example.com` / `clan123`.
 
-## 🛠️ Manuelni Setup (opciono)
+### AI asistent (opciono)
 
-Ako ne možeš koristiti .bat skripte:
+```bash
+ollama pull llama3.2:3b
+ollama pull nomic-embed-text
+
+cd backend/rag_service
+setup.bat        # pravi Python venv i instalira zavisnosti
+start.bat        # pokreće RAG servis na portu 8001
+
+cd ..
+php artisan ai:reindex
+```
+
+Detalji su u [`backend/rag_service/README.md`](backend/rag_service/README.md),
+a pravila ponašanja asistenta u [`backend/bib-pravila.md`](backend/bib-pravila.md).
+
+## Testovi
 
 ```bash
 cd backend
-
-# 1. Instalacija zavisnosti
-composer install
-npm install
-
-# 2. Setup okruženja
-copy .env.example .env
-php artisan key:generate
-
-# 3. Baza podataka
-php artisan migrate:fresh --seed
-
-# 4. Build
-npm run build
-
-# 5. Pokretanje
-php -S localhost:8000 -t public
+php artisan test
 ```
 
----
+## Isporuka
 
-## 📦 Tehnologije
+Aplikacija se isporučuje kao Docker image (`backend/Dockerfile`,
+`backend/rag_service/Dockerfile`) i pokreće preko `docker-compose.yml`.
+Uputstvo za ručnu instalaciju na server je u [`DEPLOYMENT.md`](DEPLOYMENT.md).
 
-### Backend:
-- **Laravel 11** - PHP Framework
-- **SQLite** - Baza podataka
-- **PHP 8.2+** - Server-side jezik
+## Autor
 
-### Frontend:
-- **Blade Templates** - Templating engine
-- **Vanilla JavaScript** - Client-side logika
-- **CSS3** - Stilizovanje
-- **Vite** - Build tool
-
----
-
-## 📁 Struktura Projekta
-
-```
-ATVSSLibrary/
-├── backend/                  # Laravel aplikacija
-│   ├── app/                 # Models, Controllers, Middleware
-│   ├── database/
-│   │   ├── migrations/      # Schema i data migrations
-│   │   └── seeders/         # Test podaci
-│   ├── public/              # Public assets (slike, CSS, JS)
-│   ├── resources/
-│   │   └── views/           # Blade template fajlovi
-│   └── routes/              # Web i API rute
-├── setup.bat                # 🆕 Prvi setup
-├── update.bat               # 🆕 Ažuriranje nakon pull
-├── start-dev.bat            # Pokretanje servera
-└── stop-dev.bat             # Gašenje servera
-```
-
----
-
-## 🔧 Česte Komande
-
-### Laravel:
-
-```bash
-# Migracije
-php artisan migrate              # Pokreni nove migracije
-php artisan migrate:fresh --seed # Reset baze + seedovanje
-
-# Cache
-php artisan config:clear
-php artisan cache:clear
-php artisan view:clear
-
-# Pravljenje migracija
-php artisan make:migration add_column_to_table
-php artisan make:migration fix_data_issue  # Za data migrations
-```
-
-### Git Workflow:
-
-```bash
-# Preuzimanje novih izmena
-git pull origin main
-update.bat                       # VAŽNO: Uvek posle pull!
-
-# Commit i push
-git add .
-git commit -m "feat: opis izmene"
-git push origin feature/ime-grane
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Problem: Slike se ne prikazuju
-
-**Rešenje:**
-```bash
-update.bat  # Ovo pokreće data migration koja popravlja putanje
-```
-
-### Problem: Port 8000 je zauzet
-
-**Rešenje:**
-```bash
-stop-dev.bat           # Zaustavi server
-netstat -ano | findstr :8000  # Proveri proces
-```
-
-### Problem: "Class not found" greška
-
-**Rešenje:**
-```bash
-composer dump-autoload
-php artisan config:clear
-```
-
----
-
-## 📝 Konvencije
-
-### Commit Messages:
-- `feat:` - Nova funkcionalnost
-- `fix:` - Popravka bug-a
-- `docs:` - Dokumentacija
-- `style:` - Formatiranje
-- `refactor:` - Refaktorisanje koda
-- `test:` - Testovi
-
-### Primer:
-```
-feat: Dodavanje sistema rezervacija knjiga
-fix: Data migration za putanje slika (books/ → images/)
-```
-
----
-
-## 👨‍💻 Autori
-
-- **Milan** - Sistem zaduženja, kašnjenja, frontend
-- **Bane** - Sistem rezervacija, Excel import, autorizacija, UI poboljšanja
-
----
-
-## 📄 Licenca
-
-Akademija tehničko-vaspitačkih strukovnih studija © 2025-2026
+Bane Pavlović — završni rad, Akademija tehničko-vaspitačkih strukovnih studija, Niš.

@@ -39,7 +39,7 @@ php -m | grep -E 'pdo|sqlite|mbstring|openssl|tokenizer|xml|ctype|json|bcmath'
 
 ```bash
 cd /var/www
-git clone https://github.com/vase-repo/ATVSSLibrary.git
+git clone https://github.com/banep33/atvss-library.git ATVSSLibrary
 cd ATVSSLibrary/backend
 ```
 
@@ -68,7 +68,6 @@ nano .env
 - `DB_DATABASE` → /var/www/ATVSSLibrary/backend/database/database.sqlite
 - `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD` → pravi mail settings
 - Proveri da `APP_DEBUG=false` i `APP_ENV=production`
-- **Obriši** ili ostavi praznim `DEV_ADMIN_TOKEN`
 
 ### 4. Generiši APP_KEY
 
@@ -326,7 +325,6 @@ Pre nego što objave aplikaciju korisnicima:
 - [ ] Admin panel dostupan samo adminu
 - [ ] Default admin password promenjen
 - [ ] APP_DEBUG=false
-- [ ] DEV_ADMIN_TOKEN obrisan iz .env
 - [ ] Backup skripta podešena
 - [ ] Server monitoring aktivan
 

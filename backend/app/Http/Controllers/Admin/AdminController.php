@@ -115,17 +115,6 @@ class AdminController extends Controller
         return response()->json(['broj' => $sledeci]);
     }
 
-    // GET /admin/debug-brojevi
-    public function debugBrojevi()
-    {
-        return response()->json([
-            'max_in_broj'          => DB::table('knjige')->max('in_broj'),
-            'max_inventarski_broj' => DB::table('primerci_knjiga')->max('inventarski_broj'),
-            'ukupno_knjiga'        => DB::table('knjige')->count(),
-            'ukupno_primeraka'     => DB::table('primerci_knjiga')->count(),
-        ]);
-    }
-
     // POST /admin/cleanup-rezervacije
     public function cleanupRezervacije()
     {

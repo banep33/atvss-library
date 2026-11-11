@@ -3,7 +3,6 @@
 
     document.addEventListener('DOMContentLoaded', function () {
 
-        console.log('[MobileNav] Inicijalizacija...');
 
         const hamburger = document.getElementById('hamburgerBtn');
         const drawer    = document.getElementById('mobileNavDrawer');
@@ -11,9 +10,6 @@
         const closeBtn  = document.getElementById('mobileNavClose');
         const logoutBtn = document.getElementById('mobileLogoutBtn');
 
-        console.log('[MobileNav] hamburger:', hamburger);
-        console.log('[MobileNav] drawer:', drawer);
-        console.log('[MobileNav] overlay:', overlay);
 
         if (!hamburger) { console.error('[MobileNav] hamburgerBtn nije pronađen!'); return; }
         if (!drawer)    { console.error('[MobileNav] mobileNavDrawer nije pronađen!'); return; }
@@ -21,7 +17,6 @@
 
         // Klik na hamburger otvara ili zatvara meni
         hamburger.addEventListener('click', function(e) {
-            console.log('[MobileNav] Hamburger kliknut');
             e.stopPropagation();
             drawer.classList.contains('open') ? closeMenu() : openMenu();
         });
@@ -54,11 +49,9 @@
             if (e.key === 'Escape') closeMenu();
         });
 
-        console.log('[MobileNav] Inicijalizacija završena uspešno');
     });
 
     function openMenu() {
-        console.log('[MobileNav] openMenu pozvan');
         const drawer    = document.getElementById('mobileNavDrawer');
         const overlay   = document.getElementById('mobileNavOverlay');
         const hamburger = document.getElementById('hamburgerBtn');
@@ -72,7 +65,6 @@
     }
 
     function closeMenu() {
-        console.log('[MobileNav] closeMenu pozvan');
         const drawer    = document.getElementById('mobileNavDrawer');
         const overlay   = document.getElementById('mobileNavOverlay');
         const hamburger = document.getElementById('hamburgerBtn');
