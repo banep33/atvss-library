@@ -1,148 +1,107 @@
-# 🚀 Deployment Guide - ATVSSLibrary
+# Isporuka na server
 
-Ovaj dokument opisuje kako postaviti aplikaciju na production server.
+Aplikacija se na serveru pokreće u Docker kontejnerima. Ispod je opisan taj
+način, a zatim i ručna instalacija bez Docker-a.
 
----
+## Docker (način koji se koristi)
 
-## 📋 Pre-deployment Checklist
+### Kako se prave image-i
 
-Pre nego što postaviš aplikaciju na server, proveri:
+CI pipeline (`bitbucket-pipelines.yml`) na svaki push gradi i objavljuje
+dva image-a u registar:
 
-- [ ] Svi bugovi ispravljeni i testirani lokalno
-- [ ] Git repoa push-ovan na GitHub/GitLab
-- [ ] `.env.production.example` popunjen sa pravim vrednostima
-- [ ] SSL certifikat za HTTPS nabavljen
-- [ ] Server pristup (SSH) dobijen
+| Image | Dockerfile | Sadržaj |
+|-------|-----------|---------|
+| `atvss-library` | `backend/Dockerfile` | Laravel (php-fpm + nginx) sa izgrađenim Vite asset-ima |
+| `atvss-library-rag` | `backend/rag_service/Dockerfile` | Python RAG mikroservis |
 
----
+### Servisi u `docker-compose.yml`
 
-## 🖥️ Server Requirements
+| Servis | Uloga |
+|--------|-------|
+| `app` | veb aplikacija, iza Traefik reverse proxy-ja (HTTPS, Let's Encrypt) |
+| `scheduler` | `php artisan schedule:work` — pokreće zakazane poslove |
+| `rag` | RAG mikroservis; bazu čita isključivo read-only |
 
-**Minimalni zahtevi**:
-- PHP 8.2 ili noviji
-- Composer
-- Node.js i npm (za Vite build)
-- Nginx ili Apache
-- SQLite ekstenzija za PHP
-- SSL certifikat (Let's Encrypt preporučen)
+Sva tri servisa dele isti volume sa SQLite bazom. Ollama (jezički i embedding
+model) radi kao zaseban stack na mreži `ai-net`, pa se mreže `proxy` i `ai-net`
+prave unapred kao spoljne (`external`).
 
-**PHP ekstenzije** (obavezne):
+### Promenljive okruženja
+
+Tajne se ne pišu u `docker-compose.yml`, nego u env stack-a (npr. u Portainer-u):
+
+- `APP_KEY` — generisati sa `php artisan key:generate --show`
+- `RAG_SERVICE_KEY` — ista vrednost za `app` i `rag`
+- podaci za slanje pošte: `MAIL_*`, `GMAIL_*`, `OUTLOOK_*`
+- `OLLAMA_URL` / `OLLAMA_MODEL` — ako Ollama nije na podrazumevanoj adresi
+
+### Posle prvog pokretanja
+
 ```bash
-php -m | grep -E 'pdo|sqlite|mbstring|openssl|tokenizer|xml|ctype|json|bcmath'
+docker compose exec app php artisan migrate --force
+docker compose exec app php artisan ai:reindex   # indeksira katalog za AI asistenta
 ```
 
----
+Na Ollama strani modeli se preuzimaju jednom:
 
-## 📦 Deployment Steps
+```bash
+ollama pull llama3.2:3b
+ollama pull nomic-embed-text
+```
 
-### 1. Clone repozitorijum na server
+## Ručna instalacija (bez Docker-a)
+
+Zahtevi: PHP 8.2+ (ekstenzije `pdo_sqlite`, `intl`, `mbstring`, `gd`),
+Composer, Node.js, Nginx ili Apache; za AI asistenta Python 3.12 i Ollama.
 
 ```bash
 cd /var/www
-git clone https://github.com/banep33/atvss-library.git ATVSSLibrary
-cd ATVSSLibrary/backend
-```
+git clone https://github.com/banep33/atvss-library.git
+cd atvss-library/backend
 
-### 2. Instalacija dependencies
-
-```bash
-# Composer packages
 composer install --optimize-autoloader --no-dev
+npm ci && npm run build
 
-# Node packages
-npm install
-
-# Build frontend asseta
-npm run build
-```
-
-### 3. Kopiraj i podesi .env fajl
-
-```bash
-cp .env.production.example .env
-nano .env
-```
-
-**Izmeni sledeće vrednosti**:
-- `APP_URL` → https://vaša-domena.com
-- `DB_DATABASE` → /var/www/ATVSSLibrary/backend/database/database.sqlite
-- `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD` → pravi mail settings
-- Proveri da `APP_DEBUG=false` i `APP_ENV=production`
-
-### 4. Generiši APP_KEY
-
-```bash
+cp .env.example .env
 php artisan key:generate
 ```
 
-### 5. Podesi bazu podataka
+U `.env` podesiti najmanje:
+
+- `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://<domen>`
+- `DB_DATABASE` — apsolutna putanja do `database/database.sqlite`
+- podatke za slanje pošte (`MAIL_*`)
+- `OLLAMA_URL`, `RAG_SERVICE_URL`, `RAG_SERVICE_KEY` — ako se koristi AI asistent
+
+Baza i prava pristupa:
 
 ```bash
-# Napravi SQLite fajl
 touch database/database.sqlite
+php artisan migrate --force --seed
 
-# Pokreni migracije
-php artisan migrate --force
-
-# Seed početne podatke (admin, žanrove, knjige)
-php artisan db:seed --force
-```
-
-**VAŽNO**: Seederi će kreirati default admin korisnika:
-- Email: `admin@atvss.com`
-- Password: `password`
-
-**ODMAH PROMENI PASSWORD** nakon prvog logovanja!
-
-### 6. Podesi permissions
-
-```bash
-# Storage i cache direktorijumi moraju biti writable
+chown -R www-data:www-data storage bootstrap/cache database
 chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
 
-# Make database writable
-chmod 664 database/database.sqlite
-chown www-data:www-data database/database.sqlite
-```
-
-### 7. Optimizuj aplikaciju
-
-```bash
-# Clear i cache config
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-
-# Optimize autoloader
-composer dump-autoload --optimize
 ```
 
-### 8. Podesi web server (Nginx primer)
+Seeder pravi početne naloge iz `database/seeders/UserSeeder.php` — njihove
+lozinke treba promeniti odmah posle prve prijave.
 
-Napravi fajl `/etc/nginx/sites-available/atvss-library`:
+### Nginx
 
 ```nginx
 server {
-    listen 80;
-    server_name vasa-domena.com;
-    return 301 https://$server_name$request_uri;
-}
-
-server {
     listen 443 ssl http2;
-    server_name vasa-domena.com;
-
-    root /var/www/ATVSSLibrary/backend/public;
+    server_name <domen>;
+    root /var/www/atvss-library/backend/public;
     index index.php;
 
-    # SSL certifikat (Let's Encrypt)
-    ssl_certificate /etc/letsencrypt/live/vasa-domena.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/vasa-domena.com/privkey.pem;
-
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-Content-Type-Options "nosniff";
+    ssl_certificate     /etc/letsencrypt/live/<domen>/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/<domen>/privkey.pem;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -150,7 +109,6 @@ server {
 
     location ~ \.php$ {
         fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
-        fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
     }
@@ -158,178 +116,45 @@ server {
     location ~ /\.(?!well-known).* {
         deny all;
     }
-
-    # Cache static assets
-    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
 }
 ```
 
-Aktiviraj site:
-```bash
-ln -s /etc/nginx/sites-available/atvss-library /etc/nginx/sites-enabled/
-nginx -t
-systemctl reload nginx
+### Zakazani poslovi (obavezno)
+
+Bez ovoga se ne ističu rezervacije i ne šalju se podsetnici o rokovima:
+
+```
+* * * * * cd /var/www/atvss-library/backend && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-### 9. SSL Certifikat (Let's Encrypt)
+Raspored je u `routes/console.php`: istek rezervacija i isteklih pozajmica
+(svaki sat), podsetnici o rokovima (svaki dan u 08:05) i osvežavanje liste
+najčitanijih (nedeljno).
 
-```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d vasa-domena.com
-```
+### RAG mikroservis
 
-### 10. Setup Cron za scheduled tasks (opciono)
+Pokretanje i konfiguracija su opisani u
+[`backend/rag_service/README.md`](backend/rag_service/README.md).
+Posle prvog pokretanja: `php artisan ai:reindex`.
 
-```bash
-crontab -e
-```
-
-Dodaj liniju:
-```
-* * * * * cd /var/www/ATVSSLibrary/backend && php artisan schedule:run >> /dev/null 2>&1
-```
-
----
-
-## 🔒 Post-deployment Security
-
-### 1. Promeni default admin password
-
-Loguj se kao `admin@atvss.com` / `password` i ODMAH promeni password!
-
-### 2. Провери .env security
+## Ažuriranje
 
 ```bash
-# .env fajl NE SME biti dostupan preko weba
-curl https://vasa-domena.com/.env
-# Trebalo bi da vrati 403 Forbidden ili 404
-```
-
-### 3. Proveri APP_DEBUG
-
-```bash
-# Provokuj grešku i vidi da li pokazuje stack trace
-# Ako pokazuje - GREŠKA! APP_DEBUG=true
-```
-
-### 4. Test email notifikacije
-
-Napravi testnu rezervaciju i proveri da li stižu emailovi.
-
----
-
-## 🔄 Update Procedure (kada push-uješ nove izmene)
-
-```bash
-# 1. Pull latest code
-cd /var/www/ATVSSLibrary/backend
-git pull origin main
-
-# 2. Update dependencies
+git pull
 composer install --optimize-autoloader --no-dev
-npm install
-npm run build
-
-# 3. Run migrations (ako ima novih)
+npm ci && npm run build
 php artisan migrate --force
-
-# 4. Clear caches
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan cache:clear
-
-# 5. Re-cache for performance
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan optimize:clear
+php artisan config:cache && php artisan route:cache && php artisan view:cache
 ```
 
----
+## Provera posle isporuke
 
-## 🐛 Troubleshooting
-
-### Problem: 500 Internal Server Error
-
-**Rešenje**:
-```bash
-# Proveri Laravel log
-tail -f storage/logs/laravel.log
-
-# Proveri Nginx/Apache error log
-tail -f /var/log/nginx/error.log
-```
-
-### Problem: Permission denied za storage/
-
-**Rešenje**:
-```bash
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
-```
-
-### Problem: Database locked
-
-**Rešenje**:
-```bash
-# SQLite permissions
-chmod 664 database/database.sqlite
-chmod 775 database/
-chown www-data:www-data database/database.sqlite
-```
-
-### Problem: CSS/JS ne učitavaju
-
-**Rešenje**:
-```bash
-# Rebuild assets
-npm run build
-
-# Proveri da li su fajlovi u public/build/
-ls -la public/build/
-```
-
----
-
-## 📊 Monitoring
-
-### Log fajlovi
-
-- Laravel: `storage/logs/laravel.log`
-- Nginx: `/var/log/nginx/access.log` i `error.log`
-
-### Backup Strategy
-
-```bash
-# Backup SQLite baze (dnevno)
-0 2 * * * cp /var/www/ATVSSLibrary/backend/database/database.sqlite /backups/atvss_$(date +\%Y\%m\%d).sqlite
-
-# Backup slika knjiga
-0 3 * * * tar -czf /backups/atvss-images_$(date +\%Y\%m\%d).tar.gz /var/www/ATVSSLibrary/backend/public/images/
-```
-
----
-
-## ✅ Final Checklist
-
-Pre nego što objave aplikaciju korisnicima:
-
-- [ ] HTTPS radi (zeleni katanac u browseru)
-- [ ] Sve slike se učitavaju
-- [ ] Login/logout radi
-- [ ] Rezervacija knjige radi
-- [ ] Email notifikacije stižu
-- [ ] Admin panel dostupan samo adminu
-- [ ] Default admin password promenjen
-- [ ] APP_DEBUG=false
-- [ ] Backup skripta podešena
-- [ ] Server monitoring aktivan
-
----
-
-**Autor**: Milan & AI Assistant  
-**Datum**: 2. mart 2026.  
-**Verzija**: 1.0
+- [ ] HTTPS radi, a `https://<domen>/.env` vraća 403 ili 404
+- [ ] `APP_DEBUG=false` (greška ne prikazuje stack trace)
+- [ ] prijava, rezervacija i zaduživanje rade
+- [ ] stižu obaveštenja e-poštom
+- [ ] početne lozinke iz seedera su promenjene
+- [ ] scheduler radi (`php artisan schedule:list`)
+- [ ] AI asistent odgovara (`GET http://<rag>:8001/health` vraća `indexed` > 0)
+- [ ] podešen je redovan backup fajla `database.sqlite` i `storage/app`

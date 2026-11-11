@@ -23,19 +23,8 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-#sistem za treniranje modela
+# Lokalni rezultati evaluacije chatbota
 /eval/
-
-# Lokalne radne beleske (ne idu na Bitbucket)
-PLAN-redizajn-login-ATVSS.md
-DEPLOY-SERVER-UPUTSTVO.md
-FABLE-PROMPT-rag-izmena.md
-few-shot-pitanja-atvss.md
-pitanja-za-katalog.md
-PLAN-izmene-po-fajlovima.md
-PLAN-migracija-rag-python.md
-TEST-PITANJA-rucna-provera.md
-testna-pitanja-chatbot.md
 
 # SQLite baza podataka (lokalna)
 database/database.sqlite
@@ -45,11 +34,5 @@ database/database.sqlite-wal
 *.sqlite-shm
 *.sqlite-wal
 
-# Radni AI materijal i beleske - ostaju lokalno
-za_kod.md
-kandidati_ucenje*.md
-claude_izmene_bibliotecke_aplikacije.md
-PLAN-opametiti-bota.md
-UPUTSTVO-treniranje-bota.md
+# Lokalne radne beleške
 *.docx
-.claude/

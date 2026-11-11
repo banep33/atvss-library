@@ -4,7 +4,7 @@ Retrieval sloj chatbota biblioteke ATVSS: pretprocesiranje jezika +
 embedovanje + hibridna pretraga (sqlite-vec KNN + FTS5/BM25, spojeno RRF-om).
 Laravel bazu čita **isključivo read-only** — svi upisi ostaju u Laravelu.
 
-Uloga u pipeline-u (jedini tok):
+Uloga u pipeline-u (semantička pretraga — koristi se kad pitanje ne može da se odgovori fiksnom rutom iz baze):
 
 ```
 Korisnik → Laravel → [ovaj servis /retrieve]
@@ -17,7 +17,7 @@ Korisnik → Laravel → [ovaj servis /retrieve]
                            upiti za padeže) → RRF spajanje
          Laravel ← top-K {id, score(cosine), source} — prag i domenska
                    leksika (score 1.0) ostaju u Laravelu
-         Laravel → Ollama (qwen2.5:7b) sa pronađenim knjigama u system promptu
+         Laravel → Ollama (llama3.2:3b) sa pronađenim knjigama u system promptu
 ```
 
 Indeksi (vec0 + FTS5) žive u in-memory bazi ovog servisa i grade se iz

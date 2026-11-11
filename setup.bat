@@ -116,7 +116,7 @@ echo   2. Za gasenje:    stop-dev.bat
 echo   3. Za update:     update.bat (posle git pull)
 echo.
 echo Default korisnici:
-echo   Admin:  admin@biblioteka.rs / admin123
+echo   Admin i bibliotekar: nalozi iz backend\database\seeders\UserSeeder.php
 echo   Clan:   jovana@example.com / clan123
 echo   Clan:   stefan@example.com / clan123
 echo.
