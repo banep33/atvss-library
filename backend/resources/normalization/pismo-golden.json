@@ -1,0 +1,398 @@
+[
+ {
+  "ulaz": "Akcije",
+  "cyr": "Акције"
+ },
+ {
+  "ulaz": "Aktivne rezervacije",
+  "cyr": "Активне резервације"
+ },
+ {
+  "ulaz": "Aktuelna Zaduživanja",
+  "cyr": "Актуелна Задуживања"
+ },
+ {
+  "ulaz": "Aleksandra Medvedeva 20, Niš",
+  "cyr": "Александра Медведева 20, Ниш"
+ },
+ {
+  "ulaz": "Autor:",
+  "cyr": "Аутор:"
+ },
+ {
+  "ulaz": "Beneficije članstva:",
+  "cyr": "Бенефиције чланства:"
+ },
+ {
+  "ulaz": "BESPLATNO za sve članove!",
+  "cyr": "БЕСПЛАТНО за све чланове!"
+ },
+ {
+  "ulaz": "Bez sortiranja",
+  "cyr": "Без сортирања"
+ },
+ {
+  "ulaz": "Biblioteka - Knjige",
+  "cyr": "Библиотека - Књиге"
+ },
+ {
+  "ulaz": "Broj karte",
+  "cyr": "Број карте"
+ },
+ {
+  "ulaz": "Broj članske karte: CLAN-123",
+  "cyr": "Број чланске карте: CLAN-123"
+ },
+ {
+  "ulaz": "Clan Z-A",
+  "cyr": "Цлан З-А"
+ },
+ {
+  "ulaz": "CLAN-001",
+  "cyr": "CLAN-001"
+ },
+ {
+  "ulaz": "clan-002",
+  "cyr": "clan-002"
+ },
+ {
+  "ulaz": "CLAN-047",
+  "cyr": "CLAN-047"
+ },
+ {
+  "ulaz": "Da li ste sigurni da želite da otkažete svoju rezervaciju?",
+  "cyr": "Да ли сте сигурни да желите да откажете своју резервацију?"
+ },
+ {
+  "ulaz": "Da, otkaži",
+  "cyr": "Да, откажи"
+ },
+ {
+  "ulaz": "Dar",
+  "cyr": "Дар"
+ },
+ {
+  "ulaz": "Datum *",
+  "cyr": "Датум *"
+ },
+ {
+  "ulaz": "Deploy now",
+  "cyr": "Деплоy ноw"
+ },
+ {
+  "ulaz": "Dodaj Knjigu",
+  "cyr": "Додај Књигу"
+ },
+ {
+  "ulaz": "Dostupno",
+  "cyr": "Доступно"
+ },
+ {
+  "ulaz": "DŽEMPER",
+  "cyr": "ЏЕМПЕР"
+ },
+ {
+  "ulaz": "EMAIL",
+  "cyr": "ИМЕЈЛ"
+ },
+ {
+  "ulaz": "Email adresa",
+  "cyr": "Имејл адреса"
+ },
+ {
+  "ulaz": "email adresa",
+  "cyr": "имејл адреса"
+ },
+ {
+  "ulaz": "Excel fajl (.xlsx)",
+  "cyr": "Ексел фајл (.xlsx)"
+ },
+ {
+  "ulaz": "Godina opadajuće",
+  "cyr": "Година опадајуће"
+ },
+ {
+  "ulaz": "https://primer.rs/knjiga",
+  "cyr": "хттпс://пример.рс/књига"
+ },
+ {
+  "ulaz": "ISBN 978-86-521-3644-5",
+  "cyr": "ISBN 978-86-521-3644-5"
+ },
+ {
+  "ulaz": "Istorija",
+  "cyr": "Историја"
+ },
+ {
+  "ulaz": "IzdavaÄ:",
+  "cyr": "ИздаваÄ:"
+ },
+ {
+  "ulaz": "izveštaj.pdf",
+  "cyr": "izveštaj.pdf"
+ },
+ {
+  "ulaz": "Kartica: CLAN-001",
+  "cyr": "Картица: CLAN-001"
+ },
+ {
+  "ulaz": "Kasni (dana)",
+  "cyr": "Касни (дана)"
+ },
+ {
+  "ulaz": "Kliknite na dugme ispod da pristupite e-knjizi:",
+  "cyr": "Кликните на дугме испод да приступите е-књизи:"
+ },
+ {
+  "ulaz": "knjiga)",
+  "cyr": "књига)"
+ },
+ {
+  "ulaz": "KNJIGE",
+  "cyr": "КЊИГЕ"
+ },
+ {
+  "ulaz": "Knjige iz žanra",
+  "cyr": "Књиге из жанра"
+ },
+ {
+  "ulaz": "Knjige koje su članovi fizički preuzeli.",
+  "cyr": "Књиге које су чланови физички преузели."
+ },
+ {
+  "ulaz": "Kolona H:",
+  "cyr": "Колона Х:"
+ },
+ {
+  "ulaz": "Kolona I:",
+  "cyr": "Колона И:"
+ },
+ {
+  "ulaz": "Konj i konjica",
+  "cyr": "Коњ и коњица"
+ },
+ {
+  "ulaz": "Kupovina",
+  "cyr": "Куповина"
+ },
+ {
+  "ulaz": "Ljiljana",
+  "cyr": "Љиљана"
+ },
+ {
+  "ulaz": "Moj profil",
+  "cyr": "Мој профил"
+ },
+ {
+  "ulaz": "Moje notifikacije",
+  "cyr": "Моје нотификације"
+ },
+ {
+  "ulaz": "N/A",
+  "cyr": "N/A"
+ },
+ {
+  "ulaz": "Najnovije knjige",
+  "cyr": "Најновије књиге"
+ },
+ {
+  "ulaz": "Nakon uvoza možeš dodati žanrove i slike za svaku knjigu pojedinačno.",
+  "cyr": "Након увоза можеш додати жанрове и слике за сваку књигу појединачно."
+ },
+ {
+  "ulaz": "Navigacija",
+  "cyr": "Навигација"
+ },
+ {
+  "ulaz": "Naziv knjige:",
+  "cyr": "Назив књиге:"
+ },
+ {
+  "ulaz": "ne menjaju",
+  "cyr": "не мењају"
+ },
+ {
+  "ulaz": "Nema vraćenih knjiga",
+  "cyr": "Нема враћених књига"
+ },
+ {
+  "ulaz": "Nema zahteva na čekanju",
+  "cyr": "Нема захтева на чекању"
+ },
+ {
+  "ulaz": "Njegoš i Ljubomir",
+  "cyr": "Његош и Љубомир"
+ },
+ {
+  "ulaz": "NJIVA",
+  "cyr": "ЊИВА"
+ },
+ {
+  "ulaz": "Notifikacije",
+  "cyr": "Нотификације"
+ },
+ {
+  "ulaz": "Odbijene",
+  "cyr": "Одбијене"
+ },
+ {
+  "ulaz": "Odbijene rezervacije",
+  "cyr": "Одбијене резервације"
+ },
+ {
+  "ulaz": "Offline režim",
+  "cyr": "Офлајн режим"
+ },
+ {
+  "ulaz": "online katalog",
+  "cyr": "онлајн каталог"
+ },
+ {
+  "ulaz": "Ostavi prazno ako ne menjaš lozinku",
+  "cyr": "Остави празно ако не мењаш лозинку"
+ },
+ {
+  "ulaz": "Otkaži rezervaciju",
+  "cyr": "Откажи резервацију"
+ },
+ {
+  "ulaz": "Otvori E-knjigu",
+  "cyr": "Отвори Е-књигу"
+ },
+ {
+  "ulaz": "Označi kao pročitano",
+  "cyr": "Означи као прочитано"
+ },
+ {
+  "ulaz": "Potvrdi",
+  "cyr": "Потврди"
+ },
+ {
+  "ulaz": "Pregled sistema",
+  "cyr": "Преглед система"
+ },
+ {
+  "ulaz": "Pretraži po naslovu ili autoru",
+  "cyr": "Претражи по наслову или аутору"
+ },
+ {
+  "ulaz": "Pristup e-knjigama sa jedinstvenim kodom",
+  "cyr": "Приступ е-књигама са јединственим кодом"
+ },
+ {
+  "ulaz": "Provera dostupnosti...",
+  "cyr": "Провера доступности..."
+ },
+ {
+  "ulaz": "Rezerviši",
+  "cyr": "Резервиши"
+ },
+ {
+  "ulaz": "Rezultati pretrage",
+  "cyr": "Резултати претраге"
+ },
+ {
+  "ulaz": "Rok vraćanja",
+  "cyr": "Рок враћања"
+ },
+ {
+  "ulaz": "Sačuvaj promene",
+  "cyr": "Сачувај промене"
+ },
+ {
+  "ulaz": "Signatura *",
+  "cyr": "Сигнатура *"
+ },
+ {
+  "ulaz": "silvana.bogicevic@akademijanis.edu.rs",
+  "cyr": "силвана.богицевиц@академијанис.еду.рс"
+ },
+ {
+  "ulaz": "Sistemska tema",
+  "cyr": "Системска тема"
+ },
+ {
+  "ulaz": "Sledeća",
+  "cyr": "Следећа"
+ },
+ {
+  "ulaz": "slika.jpg i dokument.docx",
+  "cyr": "slika.jpg и dokument.docx"
+ },
+ {
+  "ulaz": "Sortiranje",
+  "cyr": "Сортирање"
+ },
+ {
+  "ulaz": "Stara lozinka *",
+  "cyr": "Стара лозинка *"
+ },
+ {
+  "ulaz": "Sve odobrene rezervacije su već preuzete ili su istekle.",
+  "cyr": "Све одобрене резервације су већ преузете или су истекле."
+ },
+ {
+  "ulaz": "Svi članovi su vratili knjige na vreme!",
+  "cyr": "Сви чланови су вратили књиге на време!"
+ },
+ {
+  "ulaz": "Tamna tema",
+  "cyr": "Тамна тема"
+ },
+ {
+  "ulaz": "Tamno",
+  "cyr": "Тамно"
+ },
+ {
+  "ulaz": "Telefon",
+  "cyr": "Телефон"
+ },
+ {
+  "ulaz": "Uvoz je siguran — postojeće knjige se",
+  "cyr": "Увоз је сигуран — постојеће књиге се"
+ },
+ {
+  "ulaz": "učitavaju iz excel fajla",
+  "cyr": "учитавају из ексел фајла"
+ },
+ {
+  "ulaz": "Vaš broj kartice je CLAN-9 i ne menja se.",
+  "cyr": "Ваш број картице је CLAN-9 и не мења се."
+ },
+ {
+  "ulaz": "We suggest starting with the following.",
+  "cyr": "Wе суггест стартинг wитх тхе фоллоwинг."
+ },
+ {
+  "ulaz": "Zadužavanje Primerka",
+  "cyr": "Задужавање Примерка"
+ },
+ {
+  "ulaz": "Zadužene knjige",
+  "cyr": "Задужене књиге"
+ },
+ {
+  "ulaz": "Zaduži",
+  "cyr": "Задужи"
+ },
+ {
+  "ulaz": "Zdravo! Ja sam Bib, asistent biblioteke ATVSS.",
+  "cyr": "Здраво! Ја сам Биб, асистент библиотеке АТВСС."
+ },
+ {
+  "ulaz": "Ćirilica i latinica",
+  "cyr": "Ћирилица и латиница"
+ },
+ {
+  "ulaz": "Član",
+  "cyr": "Члан"
+ },
+ {
+  "ulaz": "Član sa karticom CLAN-010 je zadužio knjigu.",
+  "cyr": "Члан са картицом CLAN-010 је задужио књигу."
+ },
+ {
+  "ulaz": "Đorđe Đurđević",
+  "cyr": "Ђорђе Ђурђевић"
+ }
+]

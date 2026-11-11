@@ -1,0 +1,1707 @@
+/* =============================================================
+   CORE.CSS — jedan stylesheet koji nose SVE stranice
+   =============================================================
+   Nastao spajanjem fajlova koji su se i do sada učitavali na svakoj
+   stranici (theme, header-nav, footer, pagination, notifications) i
+   pravila zaglavlja/podnožja koja su stajala IDENTIČNA u sedam
+   stylesheet-ova stranica.
+
+   REDOSLED SEKCIJA NIJE PROIZVOLJAN — isti je kao redosled kojim su
+   se ti fajlovi učitavali pre spajanja, da se kaskada ne promeni:
+     1. tokeni i tema        (theme.css)
+     2. zaglavlje i podnožje (izdvojeno iz fajlova stranica)
+     3. navigacija           (header-nav.css)
+     4. podnožje — potpis    (footer.css)
+     5. paginacija           (pagination.css)
+     6. notifikacije         (notifications.css)
+
+   Fajl stranice se učitava POSLE ovog, pa svaka stranica može da
+   nadjača bilo šta odavde.
+
+   NAPOMENA ZA IZMENE: ne dodavati ovde ništa što koristi jedna
+   stranica — takvo pravilo ide u fajl te stranice.
+   ============================================================= */
+
+
+
+
+/* ═══════════════ 1. TOKENI I TEMA ═══════════════ */
+
+/* =============================================================
+   PRELAZ IZMEĐU STRANICA
+   Aplikacija je klasična MPA: svaki klik je pun reload, pa se između
+   dve stranice vidi belina. `@view-transition` daje pregledaču dozvolu
+   da dva dokumenta poveže kratkim pretapanjem (Chromium 126+); ostali
+   pregledači ovo ignorišu i ponašaju se kao do sada.
+   Poštuje se i podešavanje "smanji animacije" na uređaju.
+   ============================================================= */
+@view-transition {
+    navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation: none !important;
+    }
+}
+
+
+
+/* =============================================================
+   DIZAJN-TOKENI + TEMA (svetlo / tamno / sistem)
+   Jedinstven token sistem za celu aplikaciju. Ostali stylesheet-ovi
+   koriste var(--token); svetle vrednosti = originalne boje (bez
+   regresije), a html.dark preusmerava iste tokene na tamnu paletu.
+   Uključuje se PRVI (pre ostalih css-a) preko header partiala.
+   Takođe: stilovi za header alatke (tema + pismo) i dropdown.
+   ============================================================= */
+
+:root {
+    /* Površine i pozadine */
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface-subtle: #f7fafc;
+    --surface-hover: #edf2f7;
+    --border: #e2e8f0;
+
+    /* Tekst (skala od najtamnijeg ka svetlijem) */
+    --text-strong: #1a202c;
+    --text: #2d3748;
+    --text-muted: #4a5568;
+    --text-subtle: #718096;
+    --text-faint: #a0aec0;
+
+    /* Efekti */
+    --shadow-color: rgba(0, 0, 0, 0.08);
+
+    /* --- Boje interfejsa ---
+       Iste su u obe teme (namerno): pre uvođenja ovih tokena bile su
+       hardkodovane, npr. #4299e1 na 70 mesta u 11 fajlova.
+       Tema menja POVRŠINE i TEKST (tokeni iznad), ne akcentne boje. */
+    --brand:          #4299e1;   /* osnovna plava aplikacije (dugmad, fokus, linkovi) */
+    --brand-hover:    #3182ce;   /* plava na hover/aktivno */
+    --brand-login:    #009ef7;   /* plava stranice za prijavu (druga paleta) */
+    --danger:         #f56565;   /* crvena za brisanje/greške */
+    --danger-hover:   #e53e3e;   /* crvena na hover */
+    --danger-strong:  #c53030;   /* tamnija crvena za tekst greške */
+    --danger-soft:    #fed7d7;   /* blaga crvena podloga */
+    --danger-lighter: #fff5f5;   /* najsvetlija crvena podloga */
+    --danger-text:    #742a2a;   /* tekst na crvenoj podlozi */
+    --danger-border:  #fc8181;   /* ivica crvenih poruka */
+    --success:        #48bb78;   /* zelena za uspeh/dostupno */
+    --success-soft:   #c6f6d5;   /* blaga zelena podloga */
+    --success-text:   #22543d;   /* tekst na zelenoj podlozi */
+    --warning:        #ed8936;   /* narandžasta za upozorenje */
+    --warning-soft:   #feebc8;   /* blaga narandžasta podloga */
+    --warning-text:   #7b341e;   /* tekst na narandžastoj podlozi */
+    --input-border:   #cbd5e0;   /* ivica polja i neutralnih kontrola */
+
+    color-scheme: light;
+}
+
+html.dark {
+    --bg: #020617;
+    --surface: #0f172a;
+    --surface-subtle: #0b1120;
+    --surface-hover: #1e293b;
+    --border: #1e293b;
+
+    --text-strong: #f1f5f9;
+    --text: #e2e8f0;
+    --text-muted: #cbd5e0;
+    --text-subtle: #94a3b8;
+    --text-faint: #64748b;
+
+    --shadow-color: rgba(0, 0, 0, 0.65);
+
+    color-scheme: dark;
+}
+
+/* NAPOMENA o ranijoj klasi `dark-strong`:
+   Duboka paleta iznad (--bg: #020617) živela je u zasebnoj klasi `dark-strong`,
+   koju je dobijalo SAMO izričito izabrano „Tamno", dok je „Sistem" davao
+   svetliju tamnu (--bg: #0f172a, sada --surface). To je značilo TRI vizuelna
+   stanja umesto dva i, gore, „Sistem" nije prikazivao istu tamnu temu koju
+   korisnik vidi kad je sam izabere.
+   Sada su tačno dve teme — svetla i tamna — a „Sistem" bira jednu od njih po
+   podešavanju uređaja. Duboka paleta je zadržana kao JEDINA tamna. */
+
+/* Osnovna pozadina/tekst — obezbeđuje čitljivost i na stranicama
+   koje ne postavljaju eksplicitno boju teksta na body.
+
+   `min-height: 100vh` je polovina „lepljivog" podnožja: stranica je visoka
+   bar koliko ekran i onda kada ima malo sadržaja, pa podnožje (vidi pravilo
+   `footer` niže) ima dokle da padne. Druga polovina je namerno REŠENA BEZ
+   flex/grid rasporeda na <body>-ju: omotači stranica se centriraju sa
+   `margin: 0 auto`, a element flex/grid kontejnera sa automatskim bočnim
+   marginama se ne razvlači nego skuplja oko sadržaja — katalog bi se tako
+   sveo na širinu najšire kartice, a na uskom ekranu izašao iz ekrana. */
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* Kontrole (dugmad, polja, padajuće liste) po standardu NE nasleđuju font
+   od body-ja nego koriste sistemski font pregledača. Deo njih je to gasio
+   pojedinačno, pa su ostale razlike od stranice do stranice — ovim ceo
+   interfejs stoji u istom fontu (Rubik sa body-ja). */
+button,
+input,
+select,
+textarea,
+optgroup {
+    font-family: inherit;
+}
+
+/* Glatka tranzicija pri promeni teme — REZERVA.
+
+   Prvi izbor je View Transitions API (public/js/theme.js): pregledač pretopi
+   dve slike stranice, pa je cena ista i na katalogu sa nekoliko stotina
+   kartica. Pravilo ispod animira boje na SVAKOM elementu i tamo je znalo da
+   bude osetno sporo, pa se koristi samo u pregledačima bez tog API-ja. */
+html.theme-transition,
+html.theme-transition * {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease !important;
+}
+
+/* ---------- Odbrambeni tamni override-i za forme i zajedničke delove ---------- */
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="password"],
+html.dark input[type="number"],
+html.dark input[type="search"],
+html.dark input[type="tel"],
+html.dark input[type="date"],
+html.dark textarea,
+html.dark select {
+    background-color: var(--surface-subtle);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+    color: var(--text-faint);
+}
+
+/* Confirm modal (notifications.css koristi par fiksnih boja) */
+html.dark .confirm-modal__text { color: var(--text-muted); }
+html.dark .confirm-btn--cancel {
+    background: var(--surface-subtle);
+    color: var(--text);
+    border-color: var(--border);
+}
+html.dark .confirm-btn--cancel:hover { background: var(--surface-hover); }
+
+/* Diskretni scrollbar u tamnoj temi */
+html.dark * {
+    scrollbar-color: #475569 transparent;
+}
+
+/* ---------- BROJAČ NEPROČITANIH NOTIFIKACIJA ----------
+   Stoji uz link „Notifikacije" u zaglavlju. Ranije je nosio opštu klasu
+   `.badge`, koju stranice koriste za sopstvene plave pločice (admin.css,
+   zaduzene.css) — pa je isti brojač bio čas obična cifra, čas plava pločica,
+   zavisno od toga koji je CSS stranica učitala. Sopstvena klasa to zatvara:
+   izgled dolazi odavde, iz istog fajla u kom je i ostatak zaglavlja.
+
+   Oblik i boja prate `.nav-badge` iz mobilne fioke — isti brojač, ista
+   stvar. Prikazuje se samo kada ima nepročitanih (uslov je u markup-u). */
+.header-btn__badge {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 2px 7px;
+    min-width: 20px;
+    border-radius: 10px;
+    background: var(--danger);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.45;
+    text-align: center;
+}
+
+/* Boja po VRSTI najnovijeg nepročitanog obaveštenja, da se po samom brojaču
+   vidi da li je stigla dobra vest ili rok koji ističe. Podelu drži
+   App\Enums\TipObavestenja::boja(), pa su brojač, spisak obaveštenja i traka
+   u mejlu uvek u istoj boji.
+
+   Crvena ostaje u osnovnom pravilu iznad: nepoznat ili neupisan tip tako
+   ispada uočljiv, umesto da se stopi sa pozadinom. */
+.header-btn__badge--uspeh {
+    background: var(--success);
+}
+
+.header-btn__badge--upozorenje {
+    background: var(--warning);
+}
+
+.header-btn__badge--greska {
+    background: var(--danger);
+}
+
+/* ---------- HEADER ALATKE: tema + pismo ----------
+   Zakačene apsolutno uz DESNU IVICU headera (header je position:fixed,
+   pa je on referentni okvir). Izvučene iz toka .header-actions da ne
+   pomeraju i ne remete simetriju ostalih dugmadi sa sadržajem stranice.
+   Na mobilnom su u drawer-u, pa se ovde sakriju. */
+.header-tools {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 5;
+}
+
+.header-tool {
+    position: relative;
+    display: inline-flex;
+}
+
+.header-tool__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-subtle);
+    color: var(--text-muted);
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.header-tool__btn:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.header-tool__menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 170px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    padding: 6px;
+    z-index: 10000;
+    display: none;
+}
+
+.header-tool__menu.is-open {
+    display: block;
+}
+
+.header-tool__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.header-tool__item:hover {
+    background: var(--surface-hover);
+}
+
+.header-tool__item i {
+    width: 18px;
+    text-align: center;
+    color: var(--text-subtle);
+}
+
+.header-tool__item.is-active {
+    color: var(--brand-login);
+}
+
+.header-tool__item.is-active i {
+    color: var(--brand-login);
+}
+
+/* ---------- IKONICA SUNCA (svetla tema) ----------
+   Font Awesome „fa-sun" u verziji 7 ima kratke, guste zrake pa u veličini
+   od 14px liči na zupčanik — korisnici su je čitali kao „podešavanja".
+   Ovde je sopstveni crtež: pun krug i osam odvojenih zraka, kakav sunce i
+   treba da bude. Ide kao maska, pa boju uzima od `currentColor` i prati
+   temu i `:hover` isto kao ostale ikonice u meniju. */
+:root {
+    --sunce-crtez: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4.2' fill='%23000' stroke='none'/%3E%3Cpath d='M12 1.8v2.6M12 19.6v2.6M4.8 4.8l1.85 1.85M17.35 17.35l1.85 1.85M1.8 12h2.6M19.6 12h2.6M4.8 19.2l1.85-1.85M17.35 6.65l1.85-1.85'/%3E%3C/svg%3E");
+}
+
+.ikona-sunce {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    background-color: currentColor;
+    -webkit-mask: var(--sunce-crtez) center / contain no-repeat;
+    mask: var(--sunce-crtez) center / contain no-repeat;
+}
+
+/* ---------- IKONICA NA DUGMETU ZA TEMU ----------
+   Sva tri stanja stoje u markup-u, a koje se vidi bira `data-tema` na <html>
+   — postavlja ga inline snippet (partials/tema-init) PRE prvog iscrtavanja.
+   Ranije je ikonicu postavljao theme.js tek na DOMContentLoaded, pa se u
+   tamnom režimu na svakoj promeni stranice na tren video zatečeni markup
+   (sunce) pre nego što ga skripta zameni mesecom. */
+.header-tool__btn .tema-ikona {
+    display: none;
+}
+
+html[data-tema="light"] .header-tool__btn .tema-ikona--svetlo,
+html[data-tema="dark"]  .header-tool__btn .tema-ikona--tamno,
+html[data-tema="system"] .header-tool__btn .tema-ikona--sistem {
+    display: inline-block;
+}
+
+/* U menijima ikonice stoje u koloni široj od same slike (`.header-tool__item i`
+   postavlja 18px, `.mobile-nav-link i` 20px), pa se maska centrira u toj
+   koloni umesto da se razvlači. */
+.header-tool__item .ikona-sunce,
+.mobile-nav-link .ikona-sunce {
+    height: 1em;
+}
+
+.header-tool__item.is-active::after {
+    content: "\f00c";
+    /* Naziv familije MORA da prati verziju iz public/css/fontawesome.css —
+       od prelaska na self-host to je 7, a ovde je ostalo „6", pa se umesto
+       kvačice video prazan kvadratić. */
+    font-family: "Font Awesome 7 Free";
+    font-weight: 900;
+    margin-left: auto;
+    font-size: 12px;
+}
+
+/* ---------- MENI NALOGA (inicijali u headeru) ----------
+   Stoji u .header-tools, desno od pisma i teme. Dugme koristi .header-btn
+   (izgled iz header-nav.css), a meni preuzima izgled od .header-tool__menu /
+   .header-tool__item iznad — pa prati temu bez dodatnih boja. */
+.header-user {
+    position: relative;
+    display: inline-flex;
+}
+
+.header-user__btn {
+    display: inline-flex;
+    align-items: center;
+}
+
+.header-user__menu {
+    min-width: 200px;
+}
+
+/* ---------- ZAGLAVLJE MENIJA NALOGA ----------
+   Meni počinje „vizit-kartom": kvadrat sa inicijalima u brend boji i puno
+   ime pored njega. Ispod idu stavke, odvojene tankim linijama — tako se
+   `Moj profil` i `Odjava` čitaju kao dve odvojene radnje, a ne kao spisak. */
+.header-user__zaglavlje {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+}
+
+.header-user__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.header-user__ime {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-strong);
+    white-space: nowrap;
+}
+
+.header-user__linija {
+    height: 1px;
+    margin: 4px 0;
+    background: var(--border);
+}
+
+/* Stavke menija naloga nemaju ikonicu, pa im tekst ide uz istu levu ivicu
+   na kojoj počinje i avatar iznad njih. */
+.header-user__menu .header-tool__item {
+    padding: 11px 12px;
+}
+
+/* Stavke menija su i <a> i <button>; link mora da izgleda isto kao dugme. */
+a.header-tool__item {
+    text-decoration: none;
+}
+
+/* Dugmad u mobilnom drawer-u (tema/pismo) da izgledaju kao linkovi */
+button.mobile-nav-btn {
+    width: 100%;
+    text-align: left;
+    background: none;
+    font: inherit;
+}
+.mobile-nav-link.is-active {
+    color: var(--brand-login);
+}
+
+/* Header alatke: na užim ekranima manji razmak; sakrij samo ako se
+   header-actions sažima u hamburger (kontrole su tada u drawer-u). */
+@media (max-width: 900px) {
+    .header-tools { margin-left: 0; }
+    .header-tool__btn { min-width: 36px; height: 36px; padding: 0 10px; }
+}
+
+/* ================= LOGO U HEADERU (zamena za natpis „Biblioteka - Knjige") =================
+   Slika prati izabrano pismo (pismo.js menja src: lat <-> cir) i zauzima
+   prostor ranijeg natpisa: 220px, odnosno 180px kada je u headeru i naslov
+   stranice. Logotip se prikazuje u originalnim bojama — bez filtera, i u
+   svetloj i u tamnoj temi (PNG-ovi su bez pozadine).
+
+   Manji vertikalni padding headera (10px umesto 20px) ostavlja mesta za veći
+   logo, a ukupna visina headera ostaje ~81px, ispod `body { padding-top: 85px }`
+   koji je definisan u CSS-u pojedinačnih stranica. Selektor je `body header`
+   da bi nadjačao `header { padding: 20px 0 }` iz tih fajlova (učitavaju se
+   posle theme.css). */
+body header {
+    padding: 10px 0;
+}
+
+.header-main-title .header-logo {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    max-height: 60px;
+    object-fit: contain;
+    object-position: left center;
+}
+
+.header-content.has-page-title .header-main-title .header-logo {
+    max-width: 180px;
+}
+
+/* Logotip postoji u ČETIRI varijante: dva pisma × dve teme (crna slova na
+   svetloj podlozi, bela na tamnoj). Pismo bira server i pismo.js (menjaju
+   `src`), a temu bira ovaj CSS — isti postupak koji potpis tima u podnožju
+   već koristi. Klasu `dark` na <html> postavlja snippet u <head>-u pre prvog
+   iscrtavanja, pa nema treptaja pogrešne varijante. */
+.header-main-title .header-logo--za-tamnu { display: none; }
+
+html.dark .header-main-title .header-logo--za-tamnu { display: block; }
+html.dark .header-main-title .header-logo--za-svetlu { display: none; }
+
+/* Logo je link ka početnoj — bez baseline razmaka ispod slike. */
+.header-main-title .title-link {
+    display: inline-block;
+    line-height: 0;
+}
+
+/* ---- Responsive: mobilni header je fiksne visine 60px ---- */
+@media (max-width: 768px) {
+    .header-main-title .header-logo,
+    .header-content.has-page-title .header-main-title .header-logo {
+        max-width: 200px;
+        max-height: 46px;
+    }
+}
+
+@media (max-width: 400px) {
+    .header-main-title .header-logo,
+    .header-content.has-page-title .header-main-title .header-logo {
+        max-width: 165px;
+        max-height: 40px;
+    }
+}
+
+
+/* ═══════════════ 2. ZAGLAVLJE I PODNOŽJE ═══════════════ */
+
+
+/* =============================================================
+   ZAGLAVLJE I PODNOŽJE — pravila koja su do sada stajala IDENTIČNA
+   u sedam stylesheet-ova stranica (admin, info, knjige-index,
+   knjige-show, not, profil, zaduzene). Ovde postoje jednom.
+
+   Podnožje je od sada ISTO na svim stranicama — izgled i položaj drži samo
+   pravilo `footer` ispod. Stranice više nemaju svoju kopiju.
+   ============================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Jedino pravilo podnožja u aplikaciji.
+
+   `position: sticky` sa `top: 100vh` je „lepljivo" podnožje: element OSTAJE
+   u toku (ništa oko njega ne menja raspored), ali se, kada je stranica kraća
+   od ekrana, spusti do donje ivice — dokle mu dozvoljava <body> visok bar
+   100vh. Kada je stranica duža, nema kuda da se pomeri i stoji na kraju
+   dokumenta, kao svako obično podnožje.
+
+   Ranije je svaka stranica ovo rešavala na svoj način: knjige/show je
+   podnožje lepio `position: fixed` (traka je lebdela preko sadržaja), a
+   zadužene i admin `position: absolute` uz rezervisanih 150–200px
+   `padding-bottom` na body-ju. Na uskim ekranima mobile-nav.css vraća
+   podnožje u tok, pa je taj rezervisani prostor ostajao kao prazna traka
+   ISPOD podnožja — praznina koja se videla na „Zadužene knjige" i „Moj
+   profil". */
+footer {
+    background-color: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 100vh;
+}
+
+.footer-content {
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 0 32px;
+    text-align: center;
+}
+
+.footer-copyright {
+    color: var(--text-faint);
+    font-size: 13px;
+}
+
+.footer-info {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.footer-info a {
+    color: var(--brand);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-info a:hover {
+    color: var(--brand-hover);
+}
+
+.footer-info i {
+    color: var(--brand);
+}
+
+.footer-info span {
+    align-items: center;
+    color: var(--text-subtle);
+    display: flex;
+    font-size: 14px;
+    gap: 8px;
+}
+
+.header-actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.header-btn {
+    background: var(--brand);
+    border-radius: 6px;
+    color: white;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: unset;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.header-content {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 0 32px;
+    width: 100%;
+}
+
+.header-content.has-page-title .header-main-title {
+    font-size: 16px;
+    margin-right: 24px;
+    width: 180px;
+}
+
+.header-main-title {
+    color: var(--text-strong);
+    flex: 0 0 auto;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    width: 220px;
+}
+
+.header-main-title .title-link {
+    color: var(--brand);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.header-main-title .title-link:hover {
+    color: var(--brand-hover);
+}
+
+.header-page-title {
+    color: var(--text-strong);
+    flex: 1 1 auto;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.logout-btn:hover {
+    background: var(--danger);
+}
+
+header {
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    left: 0;
+    padding: 20px 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1000;
+}
+
+@media (max-width: 768px) {
+
+    .footer-copyright {
+        font-size: 12px;
+    }
+
+    .footer-info span {
+        font-size: 13px;
+    }
+
+    .hamburger-btn {
+        display: flex !important;
+    }
+
+    .header-content.has-page-title .header-main-title {
+        margin-bottom: 8px;
+        margin-right: 0;
+    }
+
+    .header-main-title {
+        flex: 1 !important;
+        font-size: 17px !important;
+        width: auto !important;
+    }
+
+    .header-page-title {
+        text-align: center;
+        width: 100%;
+    }
+
+    header {
+        align-items: center;
+        display: flex;
+        height: 60px !important;
+        padding: 0 !important;
+    }
+
+}
+
+
+/* ═══════════════ 3. NAVIGACIJA U ZAGLAVLJU ═══════════════ */
+
+
+/* =============================================================
+   NAVIGACIJA U HEADERU — ravni linkovi umesto plavih dugmadi
+   Svaka stranica ima svoju definiciju `.header-btn` (nasleđe: puno
+   plavo dugme). Ovde se ta definicija nadjačava jednim mestom, i to
+   VEĆOM specifičnošću (`header .header-actions .header-btn`), pa
+   redosled učitavanja stylesheet-ova nije bitan. Selektor namerno
+   traži `header` da ne bi zahvatio `.header-actions` blokove unutar
+   sadržaja stranice (npr. „Nazad na žanrove" na zanrovi-knjige).
+
+   Izgled: tekst u boji ostatka stranice, bez pozadine; na hover
+   blaga plava podloga + plavi tekst (plava iz palete aplikacije).
+   ============================================================= */
+
+:root {
+    --nav-hover-bg: rgba(66, 153, 225, 0.10);
+    --nav-hover-text: var(--brand-hover);
+}
+
+html.dark {
+    --nav-hover-bg: rgba(99, 179, 237, 0.14);
+    --nav-hover-text: #63b3ed;
+}
+
+/* Ravni linkovi nose sopstveni padding, pa im treba manji razmak nego
+   ranijim dugmadima (12px). */
+header .header-actions {
+    gap: 4px;
+}
+
+/* `.header-tools` je apsolutno zakačen uz desnu ivicu prozora, pa se na
+   užim ekranima podvlači ispod poslednjih linkova. Rezerviši mu mesto.
+   (Ispod 900px je ceo `.header-actions` skriven — sve je u drawer-u.) */
+@media (max-width: 1500px) {
+    header .header-actions {
+        padding-right: 175px;
+    }
+}
+
+header .header-actions .header-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    min-height: 40px;
+    background: transparent;
+    color: var(--text);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: none;
+    transform: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+header .header-actions .header-btn:hover,
+header .header-actions .header-btn:focus-visible {
+    background: var(--nav-hover-bg);
+    color: var(--nav-hover-text);
+    box-shadow: none;
+    transform: none;
+}
+
+/* Ikonice u linkovima (zvonce, knjiga) prate boju teksta linka. */
+header .header-actions .header-btn i {
+    color: inherit;
+}
+
+/* ---------- LINK PROFILA (inicijali) ----------
+   Stoji u `.header-tools`, desno od dugmadi za pismo i temu. Isti
+   ravni izgled kao ostali linkovi, samo fiksne visine 40px da se
+   poravna sa susednim `.header-tool__btn`. */
+header .header-actions .header-user__btn {
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    gap: 0;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 900px) {
+    header .header-actions .header-user__btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+    }
+}
+
+
+/* ═══════════════ 4. PODNOŽJE — POTPIS TIMA ═══════════════ */
+
+
+/* =============================================================
+   DONJI RED FOOTERA — copyright + „Powered by VTŠApps team"
+   Stilovi samog footera (pozadina, `.footer-info`, `.footer-copyright`)
+   žive u CSS-u svake stranice; ovde je SAMO novi donji red, u zasebnom
+   fajlu koji učitava app-footer partial — da se ista pravila ne prepisuju
+   u osam stylesheet-ova.
+   ============================================================= */
+
+/* Centrirano kao par, a ne razvučeno po ivicama: na širokim ekranima
+   (>1400px) je `space-between` razmicao copyright i potpis tima na suprotne
+   krajeve, pa su delovali kao dva nepovezana bloka. */
+.footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px 40px;
+    flex-wrap: wrap;
+}
+
+/* Copyright je do sada bio centriran preko celog reda; sada deli red sa
+   potpisom tima, pa ide uz levu ivicu i zadržava svoje boje/veličinu iz
+   CSS-a stranice. */
+.footer-bottom .footer-copyright {
+    margin: 0;
+}
+
+.footer-powered {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* Potpis je link ka sajtu tima — bez podvlačenja, sa blagim posvetljenjem
+   naziva na prelaz mišem, da se vidi da je klikabilan. */
+a.footer-powered {
+    text-decoration: none;
+}
+
+a.footer-powered:hover .footer-powered__text {
+    color: var(--text-subtle);
+}
+
+.footer-powered__text {
+    font-size: 13px;
+    color: var(--text-faint);
+    white-space: nowrap;
+}
+
+.footer-powered__logo {
+    display: block;
+    height: 30px;
+    width: auto;
+}
+
+/* Logotip postoji u dve varijante: `vtsappsteam-logo.png` je beo tekst (za
+   tamnu podlogu), `apps-team-dark.png` tamnoplav (za svetlu). Ranije je u
+   footeru stajala samo bela varijanta, pa je u svetloj temi morala da sedi na
+   tamnoj „pločici" — sada se menja sama varijanta, uz temu.
+
+   Zamena ide preko CSS-a, a ne JavaScript-om, jer klasu `dark` na <html>
+   postavlja snippet u <head>-u PRE prvog iscrtavanja — tako nema treptaja
+   pogrešnog logotipa. Obe slike su u markup-u; sakrivena se ne skida
+   (`loading="lazy"` + `display: none`). */
+.footer-powered__logo--za-tamnu { display: none; }
+
+html.dark .footer-powered__logo--za-tamnu { display: block; }
+html.dark .footer-powered__logo--za-svetlu { display: none; }
+
+/* Uski ekrani: dva reda, centrirano — isto poravnanje koje `.footer-content`
+   ima na mobilnom. */
+@media (max-width: 768px) {
+    .footer-bottom {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .footer-bottom .footer-copyright {
+        text-align: center;
+    }
+
+    .footer-powered__text {
+        font-size: 12px;
+    }
+
+    .footer-powered__logo {
+        height: 26px;
+    }
+}
+
+/* Najuži ekrani: naziv tima ume da se prelomi sa logotipom, pa mu se dozvoli
+   prelom u dva reda umesto horizontalnog skrola. */
+@media (max-width: 380px) {
+    .footer-powered {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .footer-powered__text {
+        white-space: normal;
+        text-align: center;
+    }
+}
+
+
+/* ═══════════════ 5. PAGINACIJA ═══════════════ */
+
+
+/* =============================================================
+   KLIJENTSKA PAGINACIJA ZA TABELE
+   Radi nad već renderovanim redovima (respektuje spoljne filtere).
+   Stil prati StudIS referencu: "Prikaži N zapisa" + numerisani pager.
+   Aktivira se preko public/js/pagination.js na table[data-paginate].
+   ============================================================= */
+
+.pg-topbar,
+.pg-footer {
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+/* red koji paginacija sakriva (ima prednost nad inline display iz filtera) */
+tr.pg-hidden-row {
+    display: none !important;
+}
+
+/* Prva stranica PRE nego što se paginacija uključi.
+
+   pagination.js se učitava na kraju <body>-ja, pa pregledač stigne da iscrta
+   sve redove (inventarna knjiga ih ima 360) i tek onda ih skripta skloni —
+   tabela bi na svakom otvaranju stranice poskočila iz pune visine u visinu
+   jedne stranice. Ovo pravilo unapred pokazuje samo prvi ekran redova, a
+   skripta zatim postavi `pg-init` na tabelu i dalje sve radi ona (druge
+   stranice, filteri, promena broja zapisa).
+
+   Broj 10 prati `data-paginate="10"` — jedina vrednost koju stranice koriste;
+   za neku drugu prosto ne bi važilo. Klasu `pg-init` skripta
+   postavlja i kada inicijalizacija pukne, pa ni tada ne ostaje odsečena
+   tabela. */
+table[data-paginate="10"]:not(.pg-init) > tbody > tr:nth-child(n+11) {
+    display: none;
+}
+
+/* Prazan red koji poslednjoj (nepotpunoj) stranici dopunjava visinu, da
+   tabela i sve ispod nje ostanu na istom mestu pri promeni stranice.
+   Visinu mu postavlja pagination.js; ovde se samo skidaju ivica, podloga i
+   reakcija na prelaz mišem, da se ne vidi kao red. */
+tr.pg-punilo,
+tr.pg-punilo:hover {
+    background: transparent !important;
+    border-bottom: none !important;
+}
+
+tr.pg-punilo > td {
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* ---------- GORNJA TRAKA: "Prikaži N zapisa" ---------- */
+.pg-topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 14px 0;
+}
+
+.pg-topbar select {
+    font-family: inherit;
+    font-size: 14px;
+    color: #2d3748;
+    padding: 6px 28px 6px 10px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%234a5568'/></svg>") no-repeat right 10px center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.pg-topbar select:focus {
+    outline: none;
+    border-color: var(--brand-login);
+    box-shadow: 0 0 0 3px rgba(0, 158, 247, 0.15);
+}
+
+/* ---------- DONJA TRAKA: info + pager ---------- */
+.pg-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.pg-info {
+    color: #718096;
+    font-weight: 500;
+}
+
+.pg-pager {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pg-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: #4a5568;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.pg-btn:hover:not(:disabled):not(.pg-btn--active) {
+    background: #edf2f7;
+}
+
+.pg-btn--active {
+    background: var(--brand-login);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 158, 247, 0.3);
+}
+
+.pg-btn:disabled {
+    color: var(--input-border);
+    cursor: default;
+}
+
+.pg-ellipsis {
+    min-width: 20px;
+    text-align: center;
+    color: #a0aec0;
+    user-select: none;
+}
+
+/* ---------- Tamna tema ----------
+   Preko tokena iz theme.css, a ne fiksnih boja: paleta je bila prepisana
+   ručno, pa je posle produbljivanja tamne teme traka paginacije ostajala
+   svetlija od kartice u kojoj stoji. Ovako prati paletu sama. */
+html.dark .pg-topbar,
+html.dark .pg-footer { color: var(--text-muted); }
+html.dark .pg-info { color: var(--text-subtle); }
+html.dark .pg-topbar select {
+    background-color: var(--surface-subtle);
+    color: var(--text);
+    border-color: var(--border);
+}
+html.dark .pg-btn { color: var(--text-muted); }
+html.dark .pg-btn:hover:not(:disabled):not(.pg-btn--active) { background: var(--surface-hover); }
+html.dark .pg-btn:disabled { color: var(--text-faint); }
+
+/* ---------- Mobilni ---------- */
+@media (max-width: 600px) {
+    .pg-footer {
+        justify-content: center;
+        text-align: center;
+    }
+    .pg-info { width: 100%; text-align: center; }
+}
+
+
+/* ═══════════════ 6. NOTIFIKACIJE I DIJALOZI ═══════════════ */
+
+/* =============================================================
+   GLOBALNE NOTIFIKACIJE (toast) + CONFIRM MODAL
+   Jedinstven stil za celu aplikaciju. Font: Rubik (kao ostatak app-a).
+   Uključuje se preko app-header partiala; markup/JS su u app-footer.
+   ============================================================= */
+
+/* ---------- TOAST KONTEJNER ---------- */
+.toast-container {
+    position: fixed;
+    top: 100px;             /* ispod header-a */
+    right: 0;               /* skroz uz desnu ivicu */
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    max-width: min(92vw, 360px);
+    pointer-events: none;
+}
+
+/* Mobilni: manji toast, simetrično uz obe ivice, ispod nižeg header-a */
+@media (max-width: 600px) {
+    .toast-container {
+        top: 70px;
+        left: 12px;
+        right: 12px;
+        max-width: none;
+        align-items: stretch;
+    }
+    .toast {
+        font-size: 13px;
+        padding: 12px 34px 12px 12px;
+        border-radius: 9px;
+    }
+    .toast__icon {
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+    }
+    .toast__close {
+        top: 7px;
+        right: 7px;
+    }
+}
+
+/* ---------- TOAST ---------- */
+.toast {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 40px 14px 16px;
+    border-radius: 10px;
+    background: var(--surface);
+    color: #ffffff;
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.35;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    pointer-events: auto;
+    animation: toastIn 0.28s cubic-bezier(0.21, 1.02, 0.73, 1);
+}
+
+.toast.toast--hide {
+    animation: toastOut 0.25s ease forwards;
+}
+
+/* Ikonica u krugu */
+.toast__icon {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 15px;
+}
+
+.toast__message {
+    flex: 1;
+    padding-right: 4px;
+}
+
+/* X dugme za zatvaranje */
+.toast__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    opacity: 0.75;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    transition: opacity 0.15s, background 0.15s;
+}
+
+.toast__close:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Traka za odbrojavanje (skuplja se do 0) */
+.toast__progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.55);
+    transform-origin: left center;
+    animation: toastProgress linear forwards;
+}
+
+/* ---------- VARIJANTE (zelena / crvena) ---------- */
+.toast.success {
+    background: #17c964;   /* zelena */
+}
+
+.toast.error {
+    background: #f31260;   /* crvena */
+}
+
+.toast.info {
+    background: var(--brand-login);   /* plava (primarna) */
+}
+
+.toast.warning {
+    background: #f5a524;   /* narandžasta */
+    color: #4a2e00;
+}
+
+.toast.warning .toast__icon {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.toast.warning .toast__progress {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+@keyframes toastIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes toastOut {
+    from { transform: translateX(0);    opacity: 1; }
+    to   { transform: translateX(120%); opacity: 0; }
+}
+
+@keyframes toastProgress {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+
+/* =============================================================
+   CONFIRM MODAL (stil kao "otkazivanje rezervacije" popup)
+   ============================================================= */
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.confirm-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.confirm-modal {
+    width: 100%;
+    max-width: 440px;
+    background: var(--surface);
+    border-radius: 12px;
+    font-family: 'Rubik', sans-serif;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.2s ease;
+}
+
+.confirm-overlay.is-open .confirm-modal {
+    transform: translateY(0) scale(1);
+}
+
+.confirm-modal__body {
+    display: flex;
+    gap: 16px;
+    padding: 24px 24px 20px 24px;
+}
+
+/* Ikonica u obojenom krugu, boja zavisi od tipa */
+.confirm-modal__icon {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: var(--danger-lighter);
+    color: var(--danger);
+}
+
+.confirm-modal__content {
+    flex: 1;
+}
+
+.confirm-modal__title {
+    margin: 2px 0 6px 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-strong);
+}
+
+.confirm-modal__text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #5E6278;
+    white-space: pre-line;
+}
+
+.confirm-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 0 24px 22px 24px;
+}
+
+.confirm-btn {
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.confirm-btn--cancel {
+    background: var(--surface);
+    color: #3F4254;
+    border-color: #E1E3EA;
+}
+
+.confirm-btn--cancel:hover {
+    background: var(--surface-subtle);
+}
+
+.confirm-btn--confirm {
+    background: var(--danger);
+    color: #ffffff;
+}
+
+.confirm-btn--confirm:hover {
+    box-shadow: 0 6px 18px rgba(245, 101, 101, 0.4);
+}
+
+/* Tipovi confirm modala menjaju boju ikonice i potvrdnog dugmeta */
+.confirm-modal[data-type="danger"]  .confirm-modal__icon { background: var(--danger-lighter); color: var(--danger); }
+.confirm-modal[data-type="danger"]  .confirm-btn--confirm { background: var(--danger); }
+.confirm-modal[data-type="danger"]  .confirm-btn--confirm:hover { box-shadow: 0 6px 18px rgba(245,101,101,0.4); }
+
+/* Ikonica ostaje zelena (signal „uspeh"), ali je dugme plavo — kao sva
+   ostala dugmad u aplikaciji. */
+.confirm-modal[data-type="success"] .confirm-modal__icon { background: #e9fbf1; color: #17c964; }
+.confirm-modal[data-type="success"] .confirm-btn--confirm { background: var(--brand-login); }
+.confirm-modal[data-type="success"] .confirm-btn--confirm:hover { box-shadow: 0 6px 18px rgba(0,158,247,0.4); }
+
+.confirm-modal[data-type="primary"] .confirm-modal__icon { background: #e8f6fe; color: var(--brand-login); }
+.confirm-modal[data-type="primary"] .confirm-btn--confirm { background: var(--brand-login); }
+.confirm-modal[data-type="primary"] .confirm-btn--confirm:hover { box-shadow: 0 6px 18px rgba(0,158,247,0.4); }
+
+.confirm-modal[data-type="warning"] .confirm-modal__icon { background: #fff8ec; color: #f5a524; }
+.confirm-modal[data-type="warning"] .confirm-btn--confirm { background: #f5a524; }
+.confirm-modal[data-type="warning"] .confirm-btn--confirm:hover { box-shadow: 0 6px 18px rgba(245,165,36,0.4); }
+
+@media (max-width: 480px) {
+    .confirm-modal__actions { flex-direction: column-reverse; }
+    .confirm-btn { width: 100%; }
+}
+
+/* ================= OBAVEZNA POLJA ================= */
+/* Prazno obavezno polje: crvena ivica sa ikonicom u desnom uglu i poruka
+   ispod polja (notifications.js -> proveriObavezna). Ikonica je ugrađena
+   kao pozadinska SVG slika da markup polja ostane nepromenjen. */
+.polje--greska,
+input.polje--greska,
+select.polje--greska,
+textarea.polje--greska {
+    /* SVE deklaracije nose !important namerno. Pravila stranica koriste
+       skraćenicu `background` (koja resetuje repeat/position/size) i imaju
+       jednaku ili veću specifičnost od klase stanja — bez !important
+       ikonica se ponavlja preko celog polja, a crvena ivica se vidi samo
+       na fokus. Stanje validacije mora da nadjača izgled polja. */
+    border-color: var(--danger) !important;
+    /* Bez `transition: all` sa polja — animirala bi i background-position,
+       pa bi ikonica „uletala" sleva udesno umesto da se odmah pojavi. */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    padding-right: 42px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f56565' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v6'/%3E%3Cpath d='M12 16.5v.5'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 18px 18px !important;
+}
+
+/* Fokus na polju sa greškom ne sme da vrati plavu ivicu — greška ostaje
+   vidljiva dok se polje ne popuni. Pravila fokusa u login.css/knjige-*.css
+   koriste `background` skraćenicu, koja bi obrisala ikonicu, pa se ovde
+   ponavlja kao zasebno svojstvo. */
+.polje--greska:focus,
+input.polje--greska:focus,
+select.polje--greska:focus,
+textarea.polje--greska:focus {
+    border-color: var(--danger) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.12) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f56565' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v6'/%3E%3Cpath d='M12 16.5v.5'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 18px 18px !important;
+}
+
+.polje-greska {
+    display: block;
+    margin-top: 6px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--danger-hover);
+}
+
+html.dark .polje-greska {
+    color: var(--danger-border);
+}
+
+/* Ispravno popunjeno polje: zelena ivica i kvačica (za sada e-pošta, kod
+   koje postoji format koji može da se proveri dok se kuca). */
+.polje--ispravno,
+input.polje--ispravno {
+    border-color: #17c964 !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    padding-right: 42px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2317c964' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 18px 18px !important;
+}
+
+.polje--ispravno:focus,
+input.polje--ispravno:focus {
+    border-color: #17c964 !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    box-shadow: 0 0 0 3px rgba(23, 201, 100, 0.12) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2317c964' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 18px 18px !important;
+}
+
+
+/* ═══════════════ 7. DUGMAD — ZAJEDNIČKA OSNOVA ═══════════════ */
+/* Aplikacija ima 55 različitih „btn" klasa za suštinski tri tipa dugmeta
+   (puno, opasno, prozirno). Dok se ne svedu na jednu komponentu, ovde
+   stoje deklaracije koje su im SVE zajedničke — do sada su bile prepisane
+   u svakom pravilu ponaosob. Boju, veličinu i oblik i dalje određuje
+   pojedinačna klasa u fajlu svoje stranice. */
+
+/* Nijedno dugme u aplikaciji nema podrazumevanu ivicu pregledača. */
+.btn-add,
+.btn-secondary,
+.btn-approve,
+.btn-reject,
+.btn-delete-small,
+.close-btn,
+.btn-save,
+.tab-btn,
+.btn-otkazivanje-vidjeno,
+.btn-zaduzi,
+.btn-vrati,
+.btn-delete-rezervacija,
+.btn-view-small,
+.btn-primary,
+.btn-edit-small,
+button.mobile-nav-btn,
+.header-btn,
+.btn-submit,
+.add-btn,
+.featured-manage-btn,
+.featured-delete-btn,
+.btn-dodaj,
+.btn-ukloni,
+.btn-izmeni,
+.action-btn,
+.btn-add-primerak,
+.btn-delete-primerak,
+.btn-obrisi-primerak,
+.btn-login,
+.hamburger-btn,
+.btn-procitano,
+.profil-tab-btn,
+.profil-btn-sacuvaj {
+    border: none;
+}
+
+/* Sve što je klikabilno pokazuje ruku. */
+.btn-add,
+.btn-secondary,
+.btn-approve,
+.btn-reject,
+.btn-delete-small,
+.close-btn,
+.btn-save,
+.btn-cancel,
+.tab-btn,
+.btn-dana-quick,
+.btn-otkazivanje-vidjeno,
+.btn-zaduzi,
+.btn-vrati,
+.btn-delete-rezervacija,
+.btn-view-small,
+.btn-primary,
+.arhiva-tab-btn,
+.btn-edit-small,
+.btn-ukloni-fajl,
+.header-tool__btn,
+button.mobile-nav-btn,
+.header-btn,
+.pg-btn,
+.confirm-btn,
+.btn-submit,
+.add-btn,
+.btn-edit,
+.btn-delete,
+.btn-view,
+.featured-manage-btn,
+.featured-delete-btn,
+.btn-dodaj,
+.btn-ukloni,
+.btn-izmeni,
+.action-btn,
+.btn-add-primerak,
+.btn-delete-primerak,
+.btn-obrisi-primerak,
+.btn-login,
+.hamburger-btn,
+.btn-procitano,
+.profil-tab-btn,
+.profil-btn-sacuvaj {
+    cursor: pointer;
+}
+
+/* Jedinstveno trajanje prelaza (hover, fokus, boja). */
+.btn-add,
+.btn-secondary,
+.btn-approve,
+.btn-reject,
+.btn-delete-small,
+.btn-save,
+.btn-cancel,
+.btn-dana-quick,
+.btn-zaduzi,
+.btn-vrati,
+.btn-delete-rezervacija,
+.btn-view-small,
+.btn-primary,
+.arhiva-tab-btn,
+.btn-edit-small,
+.btn-ukloni-fajl,
+.header-btn,
+.btn-submit,
+.add-btn,
+.btn-edit,
+.btn-delete,
+.btn-view,
+.btn-izmeni,
+.back-btn,
+.action-btn,
+.btn-add-primerak,
+.btn-delete-primerak,
+.btn-procitano,
+.profil-tab-btn,
+.profil-btn-sacuvaj {
+    transition: all 0.2s;
+}
+
+/* ---------- PRETRAGA I FILTRIRANJE U KARTICI SEKCIJE ----------
+   Pretraga i filtriranje više ne stoje kao ZASEBNA kartica iznad sadržaja,
+   nego u kartici same sekcije, IZNAD njenog naslova: na rezervacijama
+   (knjige-rezervacije.js premešta blok u `.controls-slot` otvorenog taba),
+   na spisku članova i u katalogu knjiga.
+
+   Unutar kartice blok gubi sopstvenu „karticu" (podlogu, ivicu, senku i
+   spoljne margine) i ostaje samo mreža polja, odvojena tankom linijom od
+   naslova ispod sebe — tako se dva okvira ne ugnežđuju jedan u drugi.
+
+   Blok stoji u core.css, a ne u admin.css, jer ga koristi i katalog, koji
+   admin.css ne učitava. */
+.controls-slot:empty {
+    display: none;
+}
+
+.controls-slot > .controls-wrapper {
+    max-width: none;
+    margin: 0 0 24px 0;
+    padding: 0 0 24px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.controls-slot > .controls-wrapper > .controls-grid {
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+@media (max-width: 1200px) {
+    .controls-slot > .controls-wrapper {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .controls-slot > .controls-wrapper {
+        padding: 0 0 16px 0;
+        margin-bottom: 16px;
+    }
+}
+
+/* ═══════════════ 8. SITNICE U FORMAMA ═══════════════ */
+/* Zvezdica uz obavezno polje — do sada `style="color:red"` u markup-u
+   na jednim stranicama i zasebno pravilo u knjige-modal.css na drugima. */
+.obavezno {
+    color: var(--danger-hover);
+}
+
+html.dark .obavezno {
+    color: #feb2b2;
+}
+
+/* Ikonica praznog stanja koje ispisuje JavaScript (pretraga bez rezultata).
+   `width: auto` je nužan: Font Awesome 7 daje svakoj ikonici `width: 1.25em`,
+   pa bi blok element bio uzan i zalepio bi se uz levu ivicu umesto da stoji
+   po sredini. */
+.prazna-ikona {
+    display: block;
+    width: auto;
+    font-size: 32px;
+    margin-bottom: 12px;
+}

@@ -1,0 +1,62 @@
+# ─── zavisnosti i build artefakti ────────────────────────────────────────────
+node_modules
+vendor
+# public/build se u prod sloju prepisuje sa `COPY --from=assets` — lokalna kopija je višak
+public/build
+
+# ─── okruženje ───────────────────────────────────────────────────────────────
+.env
+.env.backup
+
+# ─── runtime storage (stiže iz volumena / regeneriše ga Laravel) ─────────────
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# ─── Laravel keš: sadrži APSOLUTNE host putanje (C:\...) koje u kontejneru ────
+#     obaraju config('ai.faq_primeri_path'). Mora se regenerisati unutar slike.
+bootstrap/cache/*.php
+
+# ─── testovi, eval harness i alati za razvoj ─────────────────────────────────
+tests
+phpunit.xml
+.phpunit.result.cache
+eval
+.claude
+.git
+.github
+docker
+
+# ─── SQLite baza i backupi (baza dolazi iz sqlite_data volumena) ─────────────
+database.sqlite*
+database/*.sqlite
+database/*.sqlite-shm
+database/*.sqlite-wal
+database/*.bak*
+**/*.bak
+.schema
+
+# ─── Python: virtualenv, bytecode, Windows dev skripte ───────────────────────
+rag_service/venv
+**/__pycache__
+**/*.pyc
+rag_service/*.bat
+rag_service/.env.example
+rag_service/test_normalizacija.py
+
+# ─── dokumentacija i radne beleške ───────────────────────────────────────────
+*.md
+rag_service/README.md
+**/*.docx
+
+# ─── RUNTIME-KRITIČNO — negacije MORAJU biti posle pravila koja ih hvataju ───
+# FaqZnanje::parovi() čita ovaj fajl preko config('ai.faq_primeri_path');
+# bez njega FAQ few-shot sloj tiho otkazuje (samo Log::warning).
+!few-shot-pitanja-atvss.md
+# TextUtils::normalizacionaMapa() baca RuntimeException ako ovo fali.
+!resources/normalization
+# Hunspell rečnik za jezički guard + izvor RAG servisa.
+!rag_service/resources
+!rag_service/main.py
+!rag_service/requirements.txt

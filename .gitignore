@@ -1,0 +1,22 @@
+/backend/vendor/
+/backend/node_modules/
+/backend/storage/*.key
+/backend/storage/logs/*
+/backend/storage/framework/**
+/backend/bootstrap/cache/*.php
+/backend/.env
+/backend/.env.*
+.env
+/code-review
+/backend/database/*.sqlite
+
+/frontend/node_modules/
+/frontend/dist
+.env
+
+# Template je javan — jedini .env.* koji sme u repo
+!/backend/.env.example
+
+# lokalne kopije baze
+*.sqlite.bak
+/Claude outputs/

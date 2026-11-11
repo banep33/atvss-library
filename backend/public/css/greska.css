@@ -1,0 +1,169 @@
+/* =============================================================
+   GRESKA.CSS — samostalne stranice sa porukom o grešci
+   Trenutno je nosi resources/views/errors/419.blade.php (istekla sesija).
+
+   Stranica namerno NEMA zaglavlje i podnožje aplikacije: korisnik je u tom
+   trenutku odjavljen, pa mu meni sa „Zadužene knjige" i „Notifikacije" ne
+   znači ništa — jedina radnja je ponovna prijava.
+
+   Zavisi od: public/css/core.css (tokeni i tema, `.header-tool*` za alatke
+   pisma i teme, flex kolona na <body>-ju).
+   ============================================================= */
+
+body {
+    font-family: 'Rubik', sans-serif;
+    color: var(--text);
+}
+
+/* Alatke (pismo + tema) uz gornju desnu ivicu. `.header-tools` iz core.css
+   se ne koristi jer je apsolutno zakačen za fiksni <header>, kojeg ovde nema. */
+.greska-alatke {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 5;
+}
+
+/* `place-items: center` centrira karticu i vodoravno i uspravno; `flex: 1`
+   uzima svu visinu koju body (flex kolona, min-height 100vh) ima. */
+.greska-glavno {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    padding: 88px 20px 40px;
+}
+
+.greska-kartica {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px var(--shadow-color);
+    padding: 40px 32px;
+    text-align: center;
+}
+
+.greska-logo {
+    display: block;
+    width: 100%;
+    max-width: 210px;
+    height: auto;
+    margin: 0 auto 28px;
+}
+
+/* Krug sa ikonicom umesto ilustracije — ne traži dodatnu sliku i prima boju
+   iz tokena, pa radi u obe teme. */
+.greska-ikona {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(66, 153, 225, 0.12);
+    border: 1px solid rgba(66, 153, 225, 0.28);
+    color: var(--brand);
+    font-size: 40px;
+}
+
+.greska-kod {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text-strong);
+    margin-bottom: 8px;
+}
+
+.greska-poruka {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-subtle);
+    margin-bottom: 18px;
+}
+
+.greska-tekst {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+}
+
+.greska-dugme {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 24px;
+    background: var(--brand);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.greska-dugme:hover {
+    background: var(--brand-hover);
+    transform: translateY(-1px);
+}
+
+.greska-dugme:focus-visible {
+    outline: 3px solid rgba(66, 153, 225, 0.45);
+    outline-offset: 2px;
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 480px) {
+    .greska-alatke {
+        top: 12px;
+        right: 12px;
+    }
+
+    .greska-glavno {
+        padding: 76px 12px 24px;
+    }
+
+    .greska-kartica {
+        padding: 28px 20px;
+        border-radius: 12px;
+    }
+
+    .greska-logo {
+        max-width: 170px;
+        margin-bottom: 20px;
+    }
+
+    .greska-ikona {
+        width: 76px;
+        height: 76px;
+        font-size: 32px;
+        margin-bottom: 18px;
+    }
+
+    .greska-kod {
+        font-size: 27px;
+    }
+
+    .greska-poruka {
+        font-size: 15px;
+    }
+
+    .greska-tekst {
+        font-size: 13.5px;
+        margin-bottom: 22px;
+    }
+
+    .greska-dugme {
+        padding: 13px 18px;
+        font-size: 14px;
+    }
+}

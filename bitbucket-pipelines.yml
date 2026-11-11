@@ -1,0 +1,47 @@
+image: atlassian/default-image:4
+
+definitions:
+  services:
+    docker:
+      memory: 2048
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: Build, push and deploy
+          deployment: Development
+          services:
+            - docker
+          caches:
+            - docker
+          script:
+            - echo "$HARBOR_PASSWORD" | docker login $HARBOR_URL -u "$HARBOR_USER" --password-stdin
+            - export IMAGE=$HARBOR_URL/vtsappsteam/atvss-library
+            - docker build -f backend/Dockerfile --target dev -t ${IMAGE}:dev backend/
+            - docker push ${IMAGE}:dev
+            - export RAG_IMAGE=$HARBOR_URL/vtsappsteam/atvss-library-rag
+            - docker build -f backend/rag_service/Dockerfile -t ${RAG_IMAGE}:dev backend/
+            - docker push ${RAG_IMAGE}:dev
+            # Portainer stack webhook — redeploy + re-pull image.
+            # Nema vise API kljuca, jq ni rucnog cuvanja env-a: Portainer
+            # zadrzava env stacka sam. URL je tajna -> Bitbucket deployment var.
+            - curl -sf -X POST "$PORTAINER_DEV_WEBHOOK"
+
+    main:
+      - step:
+          name: Build, push and deploy
+          deployment: Production
+          services:
+            - docker
+          caches:
+            - docker
+          script:
+            - echo "$HARBOR_PASSWORD" | docker login $HARBOR_URL -u "$HARBOR_USER" --password-stdin
+            - export IMAGE=$HARBOR_URL/vtsappsteam/atvss-library
+            - docker build -f backend/Dockerfile --target prod -t ${IMAGE}:latest backend/
+            - docker push ${IMAGE}:latest
+            - export RAG_IMAGE=$HARBOR_URL/vtsappsteam/atvss-library-rag
+            - docker build -f backend/rag_service/Dockerfile -t ${RAG_IMAGE}:latest backend/
+            - docker push ${RAG_IMAGE}:latest
+            - curl -sf -X POST "$PORTAINER_PROD_WEBHOOK"

@@ -1,0 +1,136 @@
+volumes:
+  storage_data:
+  sqlite_data:
+
+networks:
+  proxy:
+    external: true
+  ai-net:
+    external: true          # deljena Ollama (zaseban stack) — app + rag
+  internal:
+    driver: bridge          # app <-> rag privatno, unutar ovog stacka
+
+services:
+  app:
+    image: harbor.vtsappsteam.edu.rs/vtsappsteam/atvss-library:dev
+    volumes:
+      - storage_data:/var/www/html/storage/app
+      - sqlite_data:/var/www/html/storage/database
+    restart: unless-stopped
+    networks:
+      - proxy
+      - ai-net
+      - internal
+    environment: &app-env
+      - APP_NAME=$APP_NAME
+      - APP_ENV=$APP_ENV
+      - APP_KEY=$APP_KEY
+      - APP_DEBUG=$APP_DEBUG
+      - APP_URL=https://biblioteka.dev.vtsappsteam.edu.rs
+      - ASSET_URL=https://biblioteka.dev.vtsappsteam.edu.rs
+      - LOG_CHANNEL=$LOG_CHANNEL
+      - LOG_LEVEL=$LOG_LEVEL
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/var/www/html/storage/database/database.sqlite
+      - BROADCAST_DRIVER=$BROADCAST_DRIVER
+      - CACHE_DRIVER=$CACHE_DRIVER
+      - FILESYSTEM_DISK=$FILESYSTEM_DISK
+      - QUEUE_CONNECTION=$QUEUE_CONNECTION
+      - SESSION_DRIVER=$SESSION_DRIVER
+      - SESSION_LIFETIME=$SESSION_LIFETIME
+      - AUTORUN_ENABLED=true
+      - AUTORUN_LARAVEL_MIGRATION=false
+      - AUTORUN_LARAVEL_STORAGE_LINK=true
+      - PHP_OPCACHE_ENABLE=1
+      - PHP_MEMORY_LIMIT=256M
+      - PHP_MAX_EXECUTION_TIME=60
+      - AUTORUN_LARAVEL_SEEDING=true
+      # ── Chatbot: Ollama (deljeni stack) + RAG (ovaj stack) ──
+      # Prazno/nepostavljeno = lokalni ollama kontejner na ai-net.
+      # Za GPU box: u Portainer stack env postavi OLLAMA_URL=http://<IP-BOXA>:11434
+      - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
+      - OLLAMA_NUM_THREAD=${OLLAMA_NUM_THREAD:-8}   # bitno samo za CPU inferencu
+      - OLLAMA_WARMUP_ENABLED=true
+      - RAG_SERVICE_URL=http://rag:8001    # RAG servis u istom stacku
+      - RAG_SERVICE_KEY=$RAG_SERVICE_KEY   # iz Portainer stack env-a
+      - FORCE_HTTPS=true                   # iza Traefik-a (TLS terminacija)
+      - TRUSTED_PROXIES=*                  # da rate-limiter i secure() rade iza proxy-ja
+      # ── Obaveštenja e-poštom ────────────────────────────────────────
+      # `environment` je IZRIČIT spisak: promenljiva koja ovde ne stoji ne
+      # stiže u kontejner, pa bi Laravel pao na podrazumevane vrednosti i
+      # slanje bi ćutke izostalo. Tajne (lozinke) se ne pišu ovde nego u
+      # env stacka u Portainer-u — odatle ih $VAR pokupi.
+      - OBAVESTENJA_MEJL=${OBAVESTENJA_MEJL:-false}
+      - OBAVESTENJA_NAZIV_BIBLIOTEKE=${OBAVESTENJA_NAZIV_BIBLIOTEKE:-Biblioteka Akademije tehnicko-vaspitackih strukovnih studija}
+      - OBAVESTENJA_DANA_PRE_ISTEKA=${OBAVESTENJA_DANA_PRE_ISTEKA:-1}
+      - MAIL_MAILER=${MAIL_MAILER:-log}
+      - MAIL_FAILOVER_MAILERS=${MAIL_FAILOVER_MAILERS:-gmail,outlook,log}
+      - MAIL_FROM_ADDRESS=$MAIL_FROM_ADDRESS
+      - MAIL_FROM_NAME=$APP_NAME
+      - GMAIL_USERNAME=$GMAIL_USERNAME
+      - GMAIL_PASSWORD=$GMAIL_PASSWORD
+      - OUTLOOK_USERNAME=$OUTLOOK_USERNAME
+      - OUTLOOK_PASSWORD=$OUTLOOK_PASSWORD
+      # Opsti SMTP (server akademije) — koristi se uz MAIL_MAILER=smtp
+      - MAIL_HOST=$MAIL_HOST
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=$MAIL_USERNAME
+      - MAIL_PASSWORD=$MAIL_PASSWORD
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.atvss-library-dev.rule=Host(`biblioteka.dev.vtsappsteam.edu.rs`)
+      - traefik.http.routers.atvss-library-dev.tls.certresolver=letsencrypt
+      - traefik.http.routers.atvss-library-dev.entrypoints=websecure
+      - traefik.http.services.atvss-library-dev.loadbalancer.server.port=8080
+      # insecure
+      - traefik.http.routers.atvss-library-dev-insecure.rule=Host(`biblioteka.dev.vtsappsteam.edu.rs`)
+      - traefik.http.routers.atvss-library-dev-insecure.middlewares=redirect-to-https@file
+      - traefik.http.routers.atvss-library-dev-insecure.entrypoints=web
+
+  # ══════════════════════════════════════════════════════════════════════
+  # SCHEDULER — zakazani poslovi (routes/console.php)
+  #
+  # Bez ovoga se NE POKRECE nijedna zakazana komanda: ni ciscenje isteklih
+  # rezervacija, ni podsetnici o rokovima (obavestenja:podsetnici). Laravelov
+  # raspored ne radi sam — nesto mora da ga budi svakog minuta, a `app`
+  # kontejner vrti samo php-fpm i nginx.
+  #
+  # `schedule:work` je dugotrajan proces koji sam poziva `schedule:run` svakog
+  # minuta — u kontejneru jednostavniji od cron-a (nema demona ni crontab-a).
+  #
+  # Deli ISTI volume sa bazom kao `app`. SQLite podnosi dva procesa (zakljucava
+  # po upisu), a scheduler pise retko — jednom dnevno, u 08:00 i 08:05.
+  #
+  # Nije na `proxy` mrezi i nema Traefik oznake: niko spolja mu ne prilazi.
+  # ══════════════════════════════════════════════════════════════════════
+  scheduler:
+    image: harbor.vtsappsteam.edu.rs/vtsappsteam/atvss-library:dev
+    restart: unless-stopped
+    command: ["php", "/var/www/html/artisan", "schedule:work"]
+    volumes:
+      - storage_data:/var/www/html/storage/app
+      - sqlite_data:/var/www/html/storage/database
+    networks:
+      - ai-net
+      - internal
+    environment: *app-env
+
+  rag:
+    image: harbor.vtsappsteam.edu.rs/vtsappsteam/atvss-library-rag:dev
+    restart: unless-stopped
+    networks:
+      - ai-net                # do deljene Ollame (embedding)
+      - internal              # do app-a
+    volumes:
+      # ISTI volume kao app, read-only — RAG čita database.sqlite (knjige_embeddings)
+      - sqlite_data:/var/www/html/storage/database:ro
+    environment:
+      - RAG_HOST=0.0.0.0                   # ⚠ 0.0.0.0 u kontejneru (da app dođe do servisa)
+      - RAG_PORT=8001
+      # Mora da prati app-ov OLLAMA_URL — RAG i sam zove Ollamu (nomic-embed-text)
+      - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
+      - RAG_EMBED_MODEL=nomic-embed-text
+      - RAG_EMBED_DIM=768
+      - RAG_API_KEY=$RAG_SERVICE_KEY       # ISTA vrednost kao app RAG_SERVICE_KEY
+      - LARAVEL_DB=/var/www/html/storage/database/database.sqlite

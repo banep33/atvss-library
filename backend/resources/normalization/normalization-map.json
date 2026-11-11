@@ -1,0 +1,48 @@
+{
+    "_opis": "JEDINI izvor pravila normalizacije teksta — čitaju ga i PHP (App\\Services\\Ai\\TextUtils) i Python (rag_service/main.py). Pravila se menjaju OVDE, nikada u kodu. Posle izmene mape proveriti golden test na obe strane (tests/Unit/NormalizacijaParitetTest.php i rag_service/test_normalizacija.py); izmena koja menja izlaz normalizacije zahteva i 'php artisan ai:reindex'.",
+    "cir_digrafi": {
+        "љ": "lj", "Љ": "Lj",
+        "њ": "nj", "Њ": "Nj",
+        "џ": "dž", "Џ": "Dž"
+    },
+    "cir_slova": {
+        "а": "a", "А": "A",
+        "б": "b", "Б": "B",
+        "в": "v", "В": "V",
+        "г": "g", "Г": "G",
+        "д": "d", "Д": "D",
+        "ђ": "đ", "Ђ": "Đ",
+        "е": "e", "Е": "E",
+        "ж": "ž", "Ж": "Ž",
+        "з": "z", "З": "Z",
+        "и": "i", "И": "I",
+        "ј": "j", "Ј": "J",
+        "к": "k", "К": "K",
+        "л": "l", "Л": "L",
+        "м": "m", "М": "M",
+        "н": "n", "Н": "N",
+        "о": "o", "О": "O",
+        "п": "p", "П": "P",
+        "р": "r", "Р": "R",
+        "с": "s", "С": "S",
+        "т": "t", "Т": "T",
+        "ћ": "ć", "Ћ": "Ć",
+        "у": "u", "У": "U",
+        "ф": "f", "Ф": "F",
+        "х": "h", "Х": "H",
+        "ц": "c", "Ц": "C",
+        "ч": "č", "Ч": "Č",
+        "ш": "š", "Ш": "Š"
+    },
+    "dijakritici": {
+        "đ": "dj", "Đ": "dj",
+        "ć": "c", "Ć": "c",
+        "č": "c", "Č": "c",
+        "š": "s", "Š": "s",
+        "ž": "z", "Ž": "z"
+    },
+    "nastavci": [
+        "ima", "ama", "om", "em", "og", "eg", "oj", "ih", "im", "ju",
+        "a", "e", "i", "o", "u"
+    ]
+}

@@ -1,0 +1,288 @@
+/* ================= GLOBAL STYLES ================= */
+html {
+    overflow-y: scroll;
+}
+
+
+body {
+    background-color: var(--bg);
+    font-family: 'Rubik', sans-serif;
+    color: var(--text);
+    padding-top: 85px;
+}
+
+/* ================= HEADER ================= */
+
+
+.header-btn:hover {
+    background: var(--brand-hover);
+}
+
+.logout-btn {
+    background: var(--danger-border);
+}
+
+
+.badge {
+    background: var(--brand);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ================= MAIN CONTAINER ================= */
+main.admin-container {
+    max-width: 1200px;
+    margin: 32px auto;
+    padding: 0 32px;
+}
+
+.admin-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+}
+
+.card-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-strong);
+}
+
+/* ================= TABLE STYLES ================= */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.data-table thead {
+    background: var(--surface-subtle);
+}
+
+/* Sadržaj tabela je centriran — i zaglavlje i ćelije. `vertical-align`
+   je `middle` jer se pojedine ćelije prelamaju u više redova, pa bi uz
+   `top` centrirani tekst u istom redu stajao na različitim visinama. */
+.data-table th {
+    text-align: center;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+}
+
+.data-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+    background: var(--surface-subtle);
+}
+
+.data-table tbody tr {
+    transition: background-color 0.2s;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Flex ćelije ne nasleđuju `text-align` od <td>, pa se centriraju posebno. */
+.user-cell, .book-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.user-cell strong, .book-cell strong {
+    color: var(--text);
+}
+
+.user-cell small, .book-cell small {
+    color: var(--text-subtle);
+    font-size: 12px;
+}
+
+/* ================= BADGE STYLES ================= */
+.rok-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.rok-badge small {
+    display: block;
+    font-size: 11px;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+.rok-ok {
+    background: var(--success-soft);
+    color: var(--success-text);
+}
+
+.rok-upozorenje {
+    background: #fefcbf;
+    color: #744210;
+}
+
+.rok-kritican {
+    color: #7b2d00;
+    background: #ff6b00;
+    border: 1px solid #cc5500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.rok-isteklo {
+    background: var(--danger-strong);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.deadline-cell {
+    cursor: pointer;
+}
+
+.deadline-cell:hover {
+    background: var(--surface-subtle);
+}
+
+/* ================= EMPTY STATE ================= */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+/* Font Awesome 7 svakoj ikonici daje `width: 1.25em`. Kad je ikonica
+       namerno blok element (prazna stanja), taj uzak blok se lepi uz levu
+       ivicu umesto da stoji po sredini — `width: auto` mu vraća punu širinu
+       reda, pa ga `text-align: center` roditelja centrira kao i pre. */
+.empty-state .empty-icon {
+    width: auto;
+    font-size: 64px;
+    color: var(--input-border);
+    margin-bottom: 20px;
+    display: block;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.empty-state p {
+    font-size: 15px;
+    color: var(--text-subtle);
+    margin: 0;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 8px 16px;
+    background: var(--brand);
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.back-link:hover {
+    background: var(--brand-hover);
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ================= FOOTER ================= */
+/* Podnožje: izgled i „lepljivi" položaj drži core.css. Ovde je do sada
+   stajalo `position: absolute; bottom: 0` uz rezervisanih 150px (200px na
+   mobilnom) `padding-bottom` na body-ju — a na uskim ekranima mobile-nav.css
+   vraća podnožje u tok, pa je taj prostor ostajao kao praznina ispod njega. */
+
+
+/* ================= RESPONSIVE DESIGN ================= */
+@media (max-width: 1200px) {
+    main.admin-container {
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-wrap: wrap;
+    }
+
+    .header-actions {
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .data-table {
+        font-size: 13px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 12px 8px;
+    }
+
+    main.admin-container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .admin-card {
+        padding: 16px;
+    }
+}
+

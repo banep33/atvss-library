@@ -1,0 +1,798 @@
+html {
+        overflow-y: scroll; /* uvek prikazuj scrollbar, sprečava layout shift */
+        }
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+   }
+ 
+body {
+    background-color: var(--bg);
+    font-family: 'Rubik', sans-serif;
+    color: var(--text);
+    padding-top: 85px;
+}
+
+     
+        /* ================= HEADER ================= */
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+.header-btn:hover {
+    background: var(--brand-hover);
+    transform: translateY(-1px);
+}
+ 
+.logout-btn {
+    background: var(--danger-border);
+    color: white;
+}
+ 
+   
+
+        .profil-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 32px auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+            align-items: start;
+            box-sizing: border-box;
+        }
+
+        /* `min-width: 0` na obe kolone mreže.
+           Podrazumevano `min-width: auto` znači da element mreže NE SME da
+           bude uži od min-content svog sadržaja. Traka tabova
+           (`.profil-tab-nav`) drži četiri stavke u jednom redu i sama ima
+           `overflow-x: auto` — ali njena min-content širina (~490px) preko
+           `.profil-desno` diže celu kolonu iznad širine ekrana. Zbog toga je
+           na telefonu cela stranica imala vodoravni skrol: sadržaj je izlazio
+           iza desne ivice, a podnožje (široko tačno koliko i ekran) delovalo
+           je pomereno ulevo. Sa `min-width: 0` kolona prati širinu ekrana, a
+           traka tabova skroluje unutar sebe, kako je i zamišljeno. */
+        .profil-kartica,
+        .profil-desno,
+        .profil-desno > div {
+            min-width: 0;
+        }
+
+        .profil-kartica {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            text-align: center;
+            height: calc(380px + 57px); /* 380px tab-content + visina tab-nav */
+            box-sizing: border-box;
+        }
+
+        .profil-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 32px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .profil-ime {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-strong);
+            margin-bottom: 4px;
+        }
+
+        .profil-email {
+            font-size: 14px;
+            color: var(--text-subtle);
+            margin-bottom: 16px;
+        }
+
+        .profil-role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+        }
+
+        .profil-role-badge.admin {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .profil-role-badge.bibliotekar {
+            background: #e0f2fe;
+            color: #075985;
+            border: 1px solid #7dd3fc;
+        }
+
+        .profil-role-badge.clan {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .profil-info-lista {
+            text-align: left;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .profil-info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f7fafc;
+            font-size: 14px;
+        }
+
+        .profil-info-item .label {
+            color: var(--text-subtle);
+            font-weight: 500;
+        }
+
+        .profil-info-item .value {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* DESNA KOLONA */
+        .profil-desno {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profil-desno > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profil-tab-nav {
+            display: flex;
+            gap: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px 12px 0 0;
+            border-bottom: none;
+            padding: 16px 16px 0;
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+
+        .profil-tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-subtle);
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.2s;
+            font-family: 'Rubik', sans-serif;
+        }
+
+        .profil-tab-btn:hover { color: var(--brand); }
+
+        .profil-tab-btn.active {
+            color: var(--brand);
+            border-bottom-color: var(--brand);
+        }
+
+        /* Fiksna visina sadrzaja - svi tabovi jednaki */
+        .profil-tab-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0 0 12px 12px;
+            padding: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            height: 380px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* Sve sekcije su flex kolone pune visine */
+        .profil-sekcija {
+            display: none;
+        }
+
+        .profil-sekcija.active {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Licni podaci i lozinka i statistike - scroll sadrzaja */
+        #tab_podaci,
+        #tab_lozinka,
+        #tab_statistike {
+            overflow-y: auto;
+        }
+
+        /* Tabela wrapper - raste i skroluje */
+        .rezervacije-tabela-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .profil-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .profil-form-group { display: flex; flex-direction: column; }
+        .profil-form-group.full { grid-column: 1 / -1; }
+
+        .profil-form-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profil-form-group input {
+            padding: 12px 16px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Rubik', sans-serif;
+            background: var(--surface-subtle);
+            transition: all 0.2s;
+        }
+
+        .profil-form-group input:focus {
+            outline: none;
+            border-color: var(--brand);
+            background: var(--surface);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .profil-form-group input[readonly] {
+            background: var(--surface-hover);
+            color: var(--text-subtle);
+            cursor: not-allowed;
+        }
+
+        .profil-btn-sacuvaj {
+            margin-top: 20px;
+            padding: 12px 28px;
+            background: var(--brand);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Rubik', sans-serif;
+            flex-shrink: 0;
+        }
+
+        .profil-btn-sacuvaj:hover {
+            background: var(--brand-hover);
+            transform: translateY(-1px);
+        }
+
+        .profil-alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .profil-alert.success {
+            background: #f0fff4;
+            color: var(--success-text);
+            border: 1px solid #9ae6b4;
+        }
+
+        .profil-alert.error {
+            background: var(--danger-lighter);
+            color: var(--danger-text);
+            border: 1px solid var(--danger-border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .stat-kartica {
+            background: var(--surface-subtle);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-broj {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--brand);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-subtle);
+            font-weight: 500;
+        }
+
+        .stat-kartica.kasnjenja .stat-broj { color: var(--danger); }
+
+        .rezervacije-tabela {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .rezervacije-tabela th {
+            text-align: center;
+            padding: 12px 16px;
+            background: var(--surface-subtle);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .rezervacije-tabela td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f4f8;
+            color: var(--text);
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .rezervacije-tabela tr:last-child td { border-bottom: none; }
+        .rezervacije-tabela tr:hover td { background: var(--surface-subtle); }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Zaduzena i Vracena u istom redu */
+        /* Flex ćelija ne nasleđuje `text-align` od <td>, pa se centrira posebno. */
+        .status-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+
+        .status-na_cekanju { background: #fef3c7; color: #92400e; }
+        .status-odobrena   { background: #d1fae5; color: #065f46; }
+        .status-odbijena   { background: #fee2e2; color: #991b1b; }
+        .status-preuzeta   { background: #dbeafe; color: #1e40af; }
+        .status-otkazana   { background: var(--surface-subtle); color: #374151; }
+        .status-istekla    { background: var(--surface-subtle); color: #6b7280; }
+        .status-vracena    { background: var(--surface-hover); color: var(--text); }
+
+        .prazno-stanje {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-faint);
+        }
+
+        /* Font Awesome 7 svakoj ikonici daje `width: 1.25em`. Kad je ikonica
+       namerno blok element (prazna stanja), taj uzak blok se lepi uz levu
+       ivicu umesto da stoji po sredini — `width: auto` mu vraća punu širinu
+       reda, pa ga `text-align: center` roditelja centrira kao i pre. */
+.prazno-stanje i {
+    width: auto;
+            font-size: 40px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .prazno-stanje p { font-size: 15px; }
+
+        .sekcija-naslov {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-strong);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        /* ================= FOOTER ================= */
+ 
+/* Podnožje: izgled i položaj drži core.css. */
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+        /* ================================================
+   PROFIL - RESPONSIVE CSS
+   Dodati na kraj <style> bloka u profil.blade.php
+   ================================================ */
+
+/* ===== BAZNI FIX: page-wrapper konflikt ===== */
+.profil-wrapper.page-wrapper {
+    padding: 0 32px;
+    margin: 32px auto;
+    gap: 24px;
+}
+
+/* ===== TABLET (do 900px) ===== */
+@media (max-width: 900px) {
+
+    .profil-wrapper,
+    .profil-wrapper.page-wrapper {
+        grid-template-columns: 1fr;
+        padding: 0 20px;
+        margin: 16px auto;
+        gap: 16px;
+        max-width: 100%;
+    }
+
+    .profil-kartica {
+        height: auto;
+    }
+
+    .profil-tab-content {
+        height: 420px;
+        overflow: hidden;
+    }
+
+    .profil-sekcija.active {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0;
+        scrollbar-width: thin;
+        scrollbar-color: var(--input-border) #f7fafc;
+    }
+
+    #tab_podaci,
+    #tab_lozinka,
+    #tab_statistike {
+        overflow-y: auto;
+        height: 100%;
+    }
+
+    .rezervacije-tabela-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .profil-form-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .profil-form-group.full {
+        grid-column: 1;
+    }
+}
+
+/* ===== MOBILNI (do 768px) ===== */
+@media (max-width: 768px) {
+
+    /* --- Header --- */
+
+    .header-content {
+        padding: 0 16px !important;
+        height: 60px !important;
+    }
+
+    .header-actions {
+        display: none !important;
+    }
+
+
+
+    body {
+        padding-top: 60px !important;
+    }
+
+    /* --- Profil wrapper --- */
+    .profil-wrapper,
+    .profil-wrapper.page-wrapper {
+        grid-template-columns: 1fr;
+        padding: 0 12px;
+        margin: 12px auto;
+        gap: 12px;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    /* --- Leva kolona --- */
+    .profil-kartica {
+        height: auto;
+        padding: 20px 16px;
+        border-radius: 10px;
+    }
+
+    .profil-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .profil-ime {
+        font-size: 17px;
+    }
+
+    .profil-email {
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .profil-role-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+        margin-bottom: 14px;
+    }
+
+    .profil-info-lista {
+        padding-top: 12px;
+    }
+
+    .profil-info-item {
+        font-size: 13px;
+        padding: 7px 0;
+    }
+
+    /* --- Tab navigacija --- */
+    .profil-tab-nav {
+        border-radius: 10px 10px 0 0;
+        padding: 10px 10px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .profil-tab-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .profil-tab-btn {
+        padding: 8px 13px;
+        font-size: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* --- Tab sadrzaj --- */
+    .profil-tab-content {
+        height: 420px;
+        min-height: unset;
+        padding: 18px 14px;
+        border-radius: 0 0 10px 10px;
+        overflow: hidden;
+    }
+
+    .profil-sekcija.active {
+        height: 100%;
+        overflow: visible;
+    }
+
+
+    /* --- Forme --- */
+    .profil-form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .profil-form-group.full {
+        grid-column: 1;
+    }
+
+    .profil-form-group label {
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    .profil-form-group input {
+        padding: 10px 13px;
+        font-size: 16px !important; /* sprečava iOS zoom */
+    }
+
+    .profil-btn-sacuvaj {
+        width: 100%;
+        margin-top: 14px;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .sekcija-naslov {
+        font-size: 14px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+    }
+
+    /* --- Tabela rezervacija --- */
+    .rezervacije-tabela-wrapper {
+        flex: 1;
+        overflow-y: auto;          /* ← vertikalni scroll */
+        overflow-x: auto;          /* ← horizontalni scroll za kolone */
+        -webkit-overflow-scrolling: touch;
+        min-height: 0;
+        /* Tanak scrollbar */
+        scrollbar-width: thin;
+        scrollbar-color: var(--input-border) #f7fafc;
+    }
+
+    .rezervacije-tabela-wrapper::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    .rezervacije-tabela-wrapper::-webkit-scrollbar-track {
+        background: var(--surface-subtle);
+        border-radius: 10px;
+    }
+
+    .rezervacije-tabela-wrapper::-webkit-scrollbar-thumb {
+        background: var(--input-border);
+        border-radius: 10px;
+    }
+
+    /* Tabovi sa formom - oni mogu da budu auto visine */
+    #tab_podaci,
+    #tab_lozinka,
+    #tab_statistike {
+        overflow-y: auto;
+        height: 100%;
+    }
+
+    .rezervacije-tabela {
+        min-width: 460px;
+        font-size: 12px;
+    }
+
+    .rezervacije-tabela th {
+        padding: 9px 11px;
+        font-size: 11px;
+    }
+
+    .rezervacije-tabela td {
+        padding: 9px 11px;
+    }
+
+    .status-badge {
+        font-size: 11px;
+        padding: 2px 7px;
+    }
+
+    /* --- Prazno stanje --- */
+    .prazno-stanje {
+        padding: 24px 12px;
+    }
+
+    .prazno-stanje i {
+        font-size: 30px;
+        margin-bottom: 8px;
+    }
+
+    .prazno-stanje p {
+        font-size: 13px;
+    }
+
+    /* --- Statistike --- */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .stat-kartica {
+        padding: 14px 10px;
+        border-radius: 8px;
+    }
+
+    .stat-broj {
+        font-size: 26px;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    /* --- Alert poruke --- */
+    .profil-alert {
+        font-size: 13px;
+        padding: 9px 13px;
+        margin-bottom: 12px;
+    }
+}
+
+
+/* ===== MALI TELEFONI (do 400px) ===== */
+@media (max-width: 400px) {
+
+    .profil-wrapper,
+    .profil-wrapper.page-wrapper {
+        padding: 0 8px;
+        margin: 8px auto;
+    }
+
+    .profil-kartica {
+        padding: 16px 12px;
+    }
+
+    .profil-avatar {
+        width: 54px;
+        height: 54px;
+        font-size: 20px;
+    }
+
+    .profil-ime {
+        font-size: 15px;
+    }
+
+    .profil-tab-btn {
+        padding: 7px 10px;
+        font-size: 11px;
+    }
+
+    .profil-tab-content {
+        padding: 14px 10px;
+    }
+
+    .stats-grid {
+        gap: 8px;
+    }
+
+    .stat-broj {
+        font-size: 22px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
+    .rezervacije-tabela {
+        min-width: 400px;
+        font-size: 11px;
+    }
+}

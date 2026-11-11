@@ -1,0 +1,18 @@
+# Bib RAG mikroservis — zavisnosti
+# Instalacija: setup.bat  (pravi venv i instalira ovo)
+#
+# Servis radi pretprocesiranje jezika (transliteracija, dijakritici,
+# langdetect) i embedovanje delegira Ollami (nomic-embed-text) — zato
+# NEMA vise sentence-transformers/torch (venv je pao sa ~2GB na ~30MB).
+
+fastapi==0.115.*
+uvicorn[standard]==0.30.*
+pydantic==2.*
+python-dotenv==1.*
+langdetect==1.0.*
+requests==2.*
+sqlite-vec==0.1.*
+# Jezički guard (izlazna provera odgovora) — čist Python Hunspell, radi na
+# Windowsu bez sistemskih zavisnosti. Aktivan tek uz sr-Latn rečnik u
+# resources/hunspell/ i flag AI_JEZICKI_GUARD=true.
+spylls==0.1.*

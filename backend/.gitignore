@@ -1,0 +1,55 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+#sistem za treniranje modela
+/eval/
+
+# Lokalne radne beleske (ne idu na Bitbucket)
+PLAN-redizajn-login-ATVSS.md
+DEPLOY-SERVER-UPUTSTVO.md
+FABLE-PROMPT-rag-izmena.md
+few-shot-pitanja-atvss.md
+pitanja-za-katalog.md
+PLAN-izmene-po-fajlovima.md
+PLAN-migracija-rag-python.md
+TEST-PITANJA-rucna-provera.md
+testna-pitanja-chatbot.md
+
+# SQLite baza podataka (lokalna)
+database/database.sqlite
+database/database.sqlite-shm
+database/database.sqlite-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Radni AI materijal i beleske - ostaju lokalno
+za_kod.md
+kandidati_ucenje*.md
+claude_izmene_bibliotecke_aplikacije.md
+PLAN-opametiti-bota.md
+UPUTSTVO-treniranje-bota.md
+*.docx
+.claude/

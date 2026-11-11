@@ -1,0 +1,67 @@
+[
+    {
+        "ulaz": "Да ли имате књигу „Прва љубав“ Ђуре Џонсона?",
+        "ocekivano_translit": "Da li imate knjigu „Prva ljubav“ Đure Džonsona?",
+        "ocekivano_normalize": "da li imate knjigu „prva ljubav“ djure dzonsona?"
+    },
+    {
+        "ulaz": "ЊЕГОШ И ЉИЉАНА, ЏАК ЂЕРЂ",
+        "ocekivano_translit": "NjEGOŠ I LjILjANA, DžAK ĐERĐ",
+        "ocekivano_normalize": "njegos i ljiljana, dzak djerdj"
+    },
+    {
+        "ulaz": "Ђорђе Балашевић – Ćirilica i šđžčć",
+        "ocekivano_translit": "Đorđe Balašević – Ćirilica i šđžčć",
+        "ocekivano_normalize": "djordje balasevic – cirilica i sdjzcc"
+    },
+    {
+        "ulaz": "PRIČE O ČUDESNOM ĐAKU ŽELJKU",
+        "ocekivano_translit": "PRIČE O ČUDESNOM ĐAKU ŽELJKU",
+        "ocekivano_normalize": "price o cudesnom djaku zeljku"
+    },
+    {
+        "ulaz": "kniga bez kvacica i dijakritika",
+        "ocekivano_translit": "kniga bez kvacica i dijakritika",
+        "ocekivano_normalize": "kniga bez kvacica i dijakritika"
+    },
+    {
+        "ulaz": "  višestruki   razmaci \t tabovi \n novi red  ",
+        "ocekivano_translit": "  višestruki   razmaci \t tabovi \n novi red  ",
+        "ocekivano_normalize": "visestruki razmaci tabovi novi red"
+    },
+    {
+        "ulaz": "",
+        "ocekivano_translit": "",
+        "ocekivano_normalize": ""
+    },
+    {
+        "ulaz": "0123456789 !?.,;:-()[]",
+        "ocekivano_translit": "0123456789 !?.,;:-()[]",
+        "ocekivano_normalize": "0123456789 !?.,;:-()[]"
+    },
+    {
+        "ulaz": "über café naïve ñ ø",
+        "ocekivano_translit": "über café naïve ñ ø",
+        "ocekivano_normalize": "über café naïve ñ ø"
+    },
+    {
+        "ulaz": "ёыэъ руски текст",
+        "ocekivano_translit": "ёыэъ ruski tekst",
+        "ocekivano_normalize": "ёыэъ ruski tekst"
+    },
+    {
+        "ulaz": "mešano: ћирилица i latinica, ŠĐŽ",
+        "ocekivano_translit": "mešano: ćirilica i latinica, ŠĐŽ",
+        "ocekivano_normalize": "mesano: cirilica i latinica, sdjz"
+    },
+    {
+        "ulaz": "dž lj nj su već latinica",
+        "ocekivano_translit": "dž lj nj su već latinica",
+        "ocekivano_normalize": "dz lj nj su vec latinica"
+    },
+    {
+        "ulaz": "Књига%20за+тест?naslov=Џин",
+        "ocekivano_translit": "Knjiga%20za+test?naslov=Džin",
+        "ocekivano_normalize": "knjiga%20za+test?naslov=dzin"
+    }
+]

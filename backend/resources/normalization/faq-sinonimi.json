@@ -1,0 +1,14 @@
+{
+  "_opis": "FAQ sinonimi za LEKSIČKO uparivanje (App\\Services\\Ai\\FaqZnanje). Primenjuje se SAMO na korisničko pitanje pre uparivanja — kurirani P/O parovi ostaju kanonski. Kanonska reč (ključ) MORA da postoji u nekom FAQ paru (u samom PITANJU para), da uparivanje pogodi taj par. Varijante su normalizovane (mala slova, bez kvačica). Uparivanje je STROGO (isti skup sadržajnih reči), pa su sinonimi pretežno word-level (čuvaju objekat: rezervaciju, lozinku), a fraze se koriste samo kad ceo izraz nosi jedan pojam. Kurirati ručno; deterministička generalizacija bez modela/hardvera (izbor za llama3.2:3b na CPU). Fraze idu pre pojedinačnih reči (najduža varijanta prvo).",
+  "sinonimi": {
+    "bibliotekar": ["osoba koja vodi biblioteku", "ko vodi biblioteku", "vodi biblioteku", "zaduzen za biblioteku", "zaduzena za biblioteku"],
+    "kontakt": ["kontaktiram", "stupim u kontakt", "kontakt podaci", "kontakt biblioteke"],
+    "uclanim": ["uclanjenje", "uclanjenja", "uclanjivanje", "uclanim se", "upisem", "upisati", "postanem korisnik", "postao korisnik", "postanem clan", "postao clan", "postati clan"],
+    "clanarina": ["placam", "placanje", "platiti", "troskovi za clanstvo", "troskova za clanstvo", "trosak za clanstvo", "kostati"],
+    "lozinka": ["sifra", "sifru", "sifre", "sifrom", "pristupne podatke", "pristupni podaci", "pristupnim podacima"],
+    "otkazem": ["ponistim", "ponistis", "ponistiti", "opozovem", "opozoves", "povucem", "otkazati"],
+    "preuzmem": ["podignem", "podignes", "podici"],
+    "produzim": ["produzenje roka", "produzavanje roka"],
+    "kupim": ["prodajete", "prodaja", "otkupim", "otkup", "kupovina"]
+  }
+}
